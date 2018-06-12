@@ -242,7 +242,7 @@ $ curl "http://127.0.0.1:8080/info"
 
 Any method that can make web request can be a client. For example, `curl` works
 great.
-
+```
 $ curl "http://127.0.0.1:8080/?service=rmsk&chromosome=chr1&start=10000&end=20000"
 { "success": 1,
   "result": [
