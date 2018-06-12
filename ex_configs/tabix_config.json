@@ -1,0 +1,125 @@
+[ 
+    {
+        "name" : "simpleRepeat",
+        "arguments" : 
+        [
+            { 
+                "name" : "file",
+                "fixed" : "true",
+                "type" : "string",
+                "value" : "/data/repeats/ucsc/simpleRepeat.bed.gz"
+            },
+            {
+                "name" : "chromosome",
+                "fixed" : "false",
+                "type" : "string"
+            },
+            {
+                "name" : "start",
+                "fixed" : "false",
+                "type" : "integer"
+            },
+            {
+                "name" : "end",
+                "fixed" : "false",
+                "type" : "integer"
+            }
+        ],
+
+        "command":
+        [
+            "/usr/bin/tabix",
+            "$file",
+            "$chromosome:$start-$end"
+        ],
+
+        "output" : 
+        {
+            "type" : "text_stream",
+            "sep" : "\t"
+        }
+    },
+    {   
+        "name" : "chainSelf",
+        "arguments" : 
+        [
+            { 
+                "name" : "file",
+                "fixed" : "true",
+                "type" : "string",
+                "value" : "/data/repeats/ucsc/chainSelf.bed.gz"
+            },
+            {
+                "name" : "chromosome",
+                "fixed" : "false",
+                "type" : "string"
+            },
+            {
+                "name" : "start",
+                "fixed" : "false",
+                "type" : "integer"
+            },
+            {
+                "name" : "end",
+                "fixed" : "false",
+                "type" : "integer"
+            }
+
+        ],
+
+        "command":
+        [
+            "/usr/bin/tabix",
+            "$file",
+            "$chromosome:$start-$end"
+        ],
+
+
+        "output" : 
+        {
+            "type" : "text_stream",
+            "sep" : "\t"
+        }
+    },
+    {   
+        "name" : "rmsk",
+        "arguments" : 
+        [
+            { 
+                "name" : "file",
+                "fixed" : "true",
+                "type" : "string",
+                "value" : "/data/repeats/ucsc/rmsk.bed.gz"
+            },
+            {
+                "name" : "chromosome",
+                "fixed" : "false",
+                "type" : "string"
+            },
+            {
+                "name" : "start",
+                "fixed" : "false",
+                "type" : "integer"
+            },
+            {
+                "name" : "end",
+                "fixed" : "false",
+                "type" : "integer"
+            }
+        ],
+
+        "command":
+        [
+            "/usr/bin/tabix",
+            "$file",
+            "$chromosome:$start-$end"
+        ],
+
+
+        "output" : 
+        {
+            "type" : "text_stream",
+            "sep" : "\t"
+        }
+    }
+]

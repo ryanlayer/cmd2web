@@ -1,0 +1,40 @@
+[
+    {
+        "name" : "tabs",
+        "arguments" :  
+        [
+            {
+                "name" : "file",
+                "fixed" : "true",
+                "type" : "string",
+                "value" : "../data/test_tabs.txt"
+            }
+        ],
+        "command" : [ "cat", "$file" ],
+        "output" :
+        {
+            "type" : "text_stream",
+            "sep" : "\t"
+        }
+
+    },
+    {
+        "name" : "commas",
+        "arguments" :  
+        [
+            {
+                "name" : "file",
+                "fixed" : "true",
+                "type" : "string",
+                "value" : "../data/test_commas.txt"
+            }
+        ],
+        "command" : [ "cat", "$file" ],
+        "output" :
+        {
+            "type" : "text_stream",
+            "sep" : ","
+        }
+    }
+
+]

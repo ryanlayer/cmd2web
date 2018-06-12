@@ -1,0 +1,12 @@
+[
+    {
+        "name" : "ls"
+        "arguments": [],
+        "command" : [ "ls" ],
+        "output" :
+        {
+            "type" : "text_stream",
+            "sep" : " "
+        }
+    }
+]
