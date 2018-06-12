@@ -35,11 +35,35 @@ function get_server_info(url) {
 }
 
 function setInputForm(){
-    for (var i = 0; i < server_info.inputs.length; ++i){
+
+    $('#services').empty();
+
+    $('#services').append('<select onchange="setService()" id="service-select"></select>');
+    var serviceSelect = document.getElementById('service-select');
+
+
+    for (var service in server_info) {
+        serviceSelect.options[serviceSelect.options.length] = new Option(service, service);
+    }
+
+    $('#services').append('<button id="set-service" onclick="setService()">Set Service</button>');
+}
+
+function setService() {
+
+    $('#input').empty();
+    $('#output').empty();
+
+    var serviceSelect = document.getElementById('service-select');
+    var selectedService = serviceSelect.options[serviceSelect.selectedIndex].value;
+
+    console.log(selectedService);
+    for (var i = 0; i < server_info[selectedService].inputs.length; ++i){
+        console.log(server_info[selectedService].inputs[i]);
         input_str = '<input type="text" id="' + 
-                server_info.inputs[i] + '"' + 
+                server_info[selectedService].inputs[i].name + '"' + 
                 ' placeholder="' +  
-                server_info.inputs[i] + '">';
+                server_info[selectedService].inputs[i].name + '">';
         $('#input').append(input_str);
     }
 
@@ -48,12 +72,18 @@ function setInputForm(){
 
 function getData() {
 
+    var serviceSelect = document.getElementById('service-select');
+    var selectedService = serviceSelect.options[serviceSelect.selectedIndex].value;
+
     $('#output').empty();
 
-    url_params = "?";
+    url_params = "?service=" + selectedService;
 
-    for (var i = 0; i < server_info.inputs.length; ++i){
-        url_params += server_info.inputs[i] + '=' + $('#' + server_info.inputs[i]).val();
+    console.log(server_info[selectedService]);
+    for (var i = 0; i < server_info[selectedService].inputs.length; ++i){
+        var inputName = server_info[selectedService].inputs[i].name;
+        var inputValue = document.getElementById(inputName).value;
+        url_params += '&' + inputName + '=' + inputValue
     }  
 
     var get_data_promise = get_data(server_url + url_params).then(function(data) {
@@ -78,15 +108,20 @@ function get_data(url) {
 }
 
 function showData() {
-    $('#output').append('<table id="output_table">');
-    for (var i = 0; i < server_result.length; ++i){
-        $('#output_table').append('<tr>');
-        for (var j = 0; j < server_result[i].length; ++j){
-            $('#output_table').append('<td>');
-            $('#output_table').append(server_result[i][j]);
-            $('#output_table').append('<td>');
-        }
-        $('#output_table').append('</tr>');
+    if (server_result.success != 1) {
+        $('#output').append('Command did not complete successfully');
+    } else {
+        var result = server_result.result;
+       $('#output').append('<table id="output_table">');
+       for (var i = 0; i < result.length; ++i){
+           $('#output_table').append('<tr>');
+           for (var j = 0; j < result[i].length; ++j){
+               $('#output_table').append('<td>');
+               $('#output_table').append(result[i][j]);
+               $('#output_table').append('<td>');
+           }
+           $('#output_table').append('</tr>');
+       }
+       $('#output').append('</table>');
     }
-    $('#output').append('</table>');
 }
