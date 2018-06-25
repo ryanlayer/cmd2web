@@ -416,21 +416,20 @@ class Client:
         #}}}
     #}}}
 
-    #{{{def connect(url, port):
+    #{{{ def connect(url):
     @staticmethod
-    def connect(url, port):
-        c = Client('http://' + url, port)
+    def connect(url):
+        c = Client(url)
         return c
     #}}}
 
-    #{{{def __init__(self, url, port):
-    def __init__(self, url, port):
+    #{{{ def __init__(self, url):
+    def __init__(self, url):
         self.server_url = url
-        self.server_port = port
 
         self.service_def = None
         try:
-            r = requests.get(url + ':' + port + '/info')
+            r = requests.get(url + '/info')
             self.service_def = json.loads(r.text)
         except requests.exceptions.ConnectionError:
             raise requests.exceptions.ConnectionError
@@ -463,8 +462,7 @@ class Client:
                                 self.services[service].inputs[kwarg])
             payload[kwarg] = kwargs[kwarg]
 
-        r = requests.get(self.server_url + ':' + self.server_port, \
-                         params=payload)
+        r = requests.get(self.server_url, params=payload)
 
         j = json.loads(r.text)
 

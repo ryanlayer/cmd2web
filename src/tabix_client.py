@@ -5,15 +5,10 @@ import cmd2web
 
 parser = argparse.ArgumentParser(description='Annotate VCF with STIX ws.')
 
-parser.add_argument('--port',
-		    dest='port',
-		    default="8080",
-		    help='Port server is running on(default 8080)')
-
 parser.add_argument('--host',
 		    dest='host',
-                    default="127.0.0.1",
-                    help='Server address(default http://127.0.0.1)')
+                    default="http://127.0.0.1:8080",
+                    help='Server address(default http://127.0.0.1:8080)')
 
 parser.add_argument('--chromosome',
 		    dest='chromosome',
@@ -34,7 +29,7 @@ parser.add_argument('--service',
 
 args = parser.parse_args()
 
-s = cmd2web.Client.connect(args.host, args.port)
+s = cmd2web.Client.connect(args.host)
 
 try:
     R = s.run(args.service,

@@ -49,6 +49,8 @@ def service():
     except Exception as e:
         return cmd2web.Server.error(str(e))
 
+    print(' '.join(cmd))
+
     out_file_name = '/tmp/' + str(random.randint(0,sys.maxsize)) + '.out'
 
     f = open(out_file_name, 'w')

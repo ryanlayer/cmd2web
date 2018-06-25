@@ -5,16 +5,10 @@ import cmd2web
 
 parser = argparse.ArgumentParser(description='Annotate VCF with STIX ws.')
 
-parser.add_argument('--port',
-		    dest='port',
-		    type=int,
-		    default="8080",
-		    help='Port server is running on(default 8080)')
-
 parser.add_argument('--host',
 		    dest='host',
-		    default="127.0.0.1",
-		    help='Server address(default 127.0.0.1)')
+                    default="http://127.0.0.1:8080",
+                    help='Server address(default http://127.0.0.1:8080)')
 
 parser.add_argument('--vcf',
 		    dest='vcf_file_name',
@@ -24,7 +18,14 @@ parser.add_argument('--vcf',
 args = parser.parse_args()
 
 vcf = VCF(args.vcf_file_name)
-s = cmd2web.Client.connect('127.0.0.1','8080')
+
+s = cmd2web.Client.connect(args.host)
+
+vcf.add_info_to_header({'ID': 'STIX_NONZERO',
+                        'Description': 'The number of samples in cohort with non-zero evidence',
+                        'Type':'Integer', 'Number': '1'})
+
+print (str(vcf.raw_header), end='', flush=True)
 
 for v in vcf:
     chrom =  v.CHROM
@@ -47,8 +48,11 @@ for v in vcf:
                   left_chrom=chrom, left_start=start+cipos[0], left_end=start+cipos[1],
                   right_chrom=chrom, right_start=end+ciend[0], right_end=end+ciend[1])
     except Exception as e:
-        print(str(e))
+        print(str(v), end='', flush=True)
         continue
 
-    print(R)
-
+    zero_one = [int(x) for x in R[0][2].split(':')]
+    more_depths = [int(x) for x in R[0][4].split(':')]
+    non_zero_depths = zero_one[1] + sum(more_depths)
+    v.INFO["STIX_NONZERO"] = str(non_zero_depths)
+    print(str(v), end='', flush=True)
