@@ -1,18 +1,15 @@
 import cmd2web
 
-s = cmd2web.Client.connect('127.0.0.1','8080')
+s = cmd2web.Client.connect('http://127.0.0.1:8080')
 
 try:
-    s.run('chainSelf', chromosome='chr1', start='z10000', end =50000)
-except Exception, e:
-    print str(e)
+    R = s.run('simpleRepeat', 
+              chromosome=10, 
+              start=105053143, 
+              end=105054173,
+              type='DEL')
 
-try:
-    s.run('chainSelf', chromosome='chr1', end =50000)
-except Exception, e:
-    print str(e)
+except Exception as e:
+    print(str(e))
 
-R = s.run('chainSelf', chromosome='chr1', start=10000, end =50000)
-
-for r in R:
-    print '\t'.join(r)
+print(R)
