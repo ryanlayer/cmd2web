@@ -1,4 +1,4 @@
-[ 
+ [ 
     {
         "name" : "simpleRepeat",
         "arguments" : 
@@ -7,7 +7,7 @@
                 "name" : "file",
                 "fixed" : "true",
                 "type" : "string",
-                "value" : "/data/repeats/ucsc/simpleRepeat.bed.gz"
+                "value" : "/Users/rl/ref/repeats/ucsc/simpleRepeat.bed.gz"
             },
             {
                 "name" : "chromosome",
@@ -28,7 +28,7 @@
 
         "command":
         [
-            "/usr/bin/tabix",
+            "/Users/rl/bin/tabix",
             "$file",
             "$chromosome:$start-$end"
         ],
@@ -47,7 +47,7 @@
                 "name" : "file",
                 "fixed" : "true",
                 "type" : "string",
-                "value" : "/data/repeats/ucsc/chainSelf.bed.gz"
+                "value" : "/Users/rl/ref/repeats/ucsc/chainSelf.bed.gz"
             },
             {
                 "name" : "chromosome",
@@ -69,7 +69,7 @@
 
         "command":
         [
-            "/usr/bin/tabix",
+            "/Users/rl/bin/tabix",
             "$file",
             "$chromosome:$start-$end"
         ],
@@ -89,7 +89,7 @@
                 "name" : "file",
                 "fixed" : "true",
                 "type" : "string",
-                "value" : "/data/repeats/ucsc/rmsk.bed.gz"
+                "value" : "/Users/rl/ref/repeats/ucsc/rmsk.bed.gz"
             },
             {
                 "name" : "chromosome",
@@ -110,7 +110,7 @@
 
         "command":
         [
-            "/usr/bin/tabix",
+            "/Users/rl/bin/tabix",
             "$file",
             "$chromosome:$start-$end"
         ],

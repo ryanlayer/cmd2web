@@ -75,6 +75,8 @@ function getData() {
     var serviceSelect = document.getElementById('service-select');
     var selectedService = serviceSelect.options[serviceSelect.selectedIndex].value;
 
+    $('#loading').append('loading...');
+
     $('#output').empty();
 
     url_params = "?service=" + selectedService;
@@ -93,6 +95,7 @@ function getData() {
     Promise.all([get_data_promise]).then(
         function(values) {
             showData();
+            console.log('DONE 1');
         }
     );
 }
@@ -101,26 +104,30 @@ function get_data(url) {
     return new Promise( function(resolve, reject) {
         $.get(url,
             function (data) {
+                console.log(data);
                 resolve( JSON.parse(data) );
+                console.log('DONE');
             }
         );
     });
 }
 
 function showData() {
+    console.log('showData');
     if (server_result.success != 1) {
         $('#output').append('Command did not complete successfully');
     } else {
+        console.log('0');
+        $('#loading').empty();
         var result = server_result.result;
        $('#output').append('<table id="output_table">');
        for (var i = 0; i < result.length; ++i){
-           $('#output_table').append('<tr>');
+           row = '<tr>';
            for (var j = 0; j < result[i].length; ++j){
-               $('#output_table').append('<td>');
-               $('#output_table').append(result[i][j]);
-               $('#output_table').append('<td>');
+               row += '<td>' + result[i][j] + '</td>';
            }
-           $('#output_table').append('</tr>');
+           row += '</tr>';
+           $('#output_table').append(row);
        }
        $('#output').append('</table>');
     }
