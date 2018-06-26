@@ -9,19 +9,23 @@ import re
 import random
 import cmd2web
 
+from OpenSSL import SSL
+
 app = Flask(__name__)
 
 config = None
 server = None
 timeout=10
+add_accesss_control = True
 
 @app.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers',
-                         'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods',
-                         'GET,PUT,POST,DELETE,OPTIONS')
+    if add_accesss_control:
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers',
+                             'Content-Type,Authorization')
+        response.headers.add('Access-Control-Allow-Methods',
+                             'GET,PUT,POST,DELETE,OPTIONS')
     return response
 
 @app.route('/info')
@@ -94,11 +98,37 @@ if __name__ == '__main__':
                         default=10,
                         help='Max runtime (sec) for a command (default 10)')
 
+    parser.add_argument('--ssl_key',
+                        dest='ssl_key',
+                        help='Path to the SSL key')
+
+    parser.add_argument('--ssl_cert',
+                        dest='ssl_cert',
+                        help='Path to the SSL key')
+
+    parser.add_argument('--no_access_control_header',
+                        dest='no_access_control_header',
+                        action='store_true',
+                        help='Path to the SSL key')
 
     args = parser.parse_args()
     timeout = args.timeout
     server = cmd2web.Server.load(args.config)
-    try:
-        app.run(host=args.host, port=args.port)
-    except Exception as e:
-        sys.exit('ERROR starting the server. "' + str(e) + '"')
+
+    if args.no_access_control_header:
+        add_accesss_control = False
+
+
+    if args.ssl_key and args.ssl_cert:
+        context = SSL.Context(SSL.SSLv23_METHOD)
+        context.use_privatekey_file('yourserver.key')
+        context.use_certificate_file('yourserver.crt')
+        try:
+            app.run(host=args.host, port=args.port, ssl_context=context)
+        except Exception as e:
+            sys.exit('ERROR starting the server. "' + str(e) + '"')
+    else:
+        try:
+            app.run(host=args.host, port=args.port)
+        except Exception as e:
+            sys.exit('ERROR starting the server. "' + str(e) + '"')
