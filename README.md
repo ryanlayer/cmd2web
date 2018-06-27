@@ -1,4 +1,4 @@
-`cmd2web` is a simple framework for enabling a RESTful web interface to command
+`cmd2web` is a simple framework for enabling a web interface to command
 line programs. From this interface, data and methods can be easily accessed
 through either a dynamic website or a programmatic interface. This package
 includes a server and client javascript and python interfaces.
@@ -283,7 +283,5 @@ The easiest way to install `cmd2web` is with `virtualenv`:
 ```
 virtualenv -p /usr/local/bin/python3.6 cmd2web_env
 source cmd2web_env/bin/activate
-cd cmd2web/
 pip install flask requests numpy Cython cyvcf2
-source cmd2web_env/bin/activate
 ```
