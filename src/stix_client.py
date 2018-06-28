@@ -35,8 +35,14 @@ for v in vcf:
     cipos = v.INFO.get('CIPOS')
     ciend = v.INFO.get('CIEND')
 
-    if None in [chrom, start, end, svtype, cipos, ciend]:
+    if None in [chrom, start, end, svtype]:
         continue
+
+    if cipos == None:
+        cipos = [0,0]
+
+    if ciend == None:
+        ciend = [0,0]
 
     if svtype not in ['DEL', 'DUP', 'INV']:
         continue
