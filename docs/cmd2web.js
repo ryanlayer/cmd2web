@@ -1,16 +1,43 @@
 var server_url = '';
 var server_info = null;
 var server_result = null;
+var selectedService = null;
+
+$.urlParam = function(name){
+    var results = new RegExp('[\?&]' + 
+                             name + 
+                             '=([^&#]*)').exec(window.location.href);
+    if (results==null){
+        return null;
+    } else {
+        return results[1] || 0;
+    }
+}
 
 $(document).ready(function() {
+    server_param = $.urlParam('server');
+
+    if (server_param){
+        server_url = decodeURIComponent(server_param);
+        $('#server_text').val(server_url);
+        connect_to_server();
+    } 
+
 })
 
 function setServer() {
+
     server_url = $('#server_text').val();
 
     if (server_url.length == 0) {
         return
     }
+
+    connect_to_server();
+}
+
+
+function connect_to_server() {
 
     var get_server_info_promise = get_server_info(server_url + '/info').then(function(data) {
         server_info = data
@@ -18,7 +45,6 @@ function setServer() {
 
     Promise.all([get_server_info_promise]).then(
         function(values) {
-            //unset_loading();
             setInputForm();
         }
     );
@@ -47,6 +73,18 @@ function setInputForm(){
     }
 
     $('#services').append('<button id="set-service" onclick="setService()">Set Service</button>');
+
+
+    service_param = $.urlParam('service');
+
+    if (service_param) {
+        if ( service_param in server_info) {
+            selectedService = decodeURIComponent(service_param);
+            $("#set-service").val(selectedService).change();
+            load_service();
+        } 
+    }
+
 }
 
 function setService() {
@@ -55,19 +93,37 @@ function setService() {
     $('#output').empty();
 
     var serviceSelect = document.getElementById('service-select');
-    var selectedService = serviceSelect.options[serviceSelect.selectedIndex].value;
+    selectedService = serviceSelect.options[serviceSelect.selectedIndex].value;
 
-    console.log(selectedService);
+    load_service();
+}
+
+
+function load_service() {
+    //console.log(selectedService);
+    var all_vals = true;
     for (var i = 0; i < server_info[selectedService].inputs.length; ++i){
-        console.log(server_info[selectedService].inputs[i]);
+        //console.log(server_info[selectedService].inputs[i]);
         input_str = '<input type="text" id="' + 
                 server_info[selectedService].inputs[i].name + '"' + 
                 ' placeholder="' +  
                 server_info[selectedService].inputs[i].name + '">';
         $('#input').append(input_str);
+
+        var this_input = $.urlParam(server_info[selectedService].inputs[i].name);
+        if (this_input) {
+            var this_val = decodeURIComponent(this_input);
+            $('#' + server_info[selectedService].inputs[i].name ).val(this_val);
+        } else {
+            all_vals = false;
+        }
     }
 
     $('#input').append('<button id="get_data" onclick="getData()">Get</button>');
+
+    if (all_vals) {
+        getData();
+    }
 }
 
 function getData() {
@@ -113,8 +169,8 @@ function get_data(url) {
 }
 
 function showData() {
-    console.log('showData');
     if (server_result.success != 1) {
+        $('#loading').empty();
         $('#output').append('Command did not complete successfully');
     } else {
         console.log('0');
