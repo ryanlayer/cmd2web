@@ -1,0 +1,64 @@
+body 
+{
+    font-family: Arial, sans-serif;
+    font-size: 11pt;
+}
+
+input[type="text"]
+{
+    font-size: 11pt;
+}
+
+select 
+{
+    font-size: 11pt;
+}
+
+button
+{
+    background-color: #555555;
+    color: white;
+    font-size: 11pt;
+}
+
+
+#server 
+{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    display: grid;
+    width: 25%;
+}
+
+#services
+{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    display: grid;
+    width: 25%;
+}
+
+#input
+{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    display: grid;
+    width: 25%;
+}
+
+#output td, #output th
+{
+    border: 0px;
+    padding: 5px;
+}
+
+#output tr:nth-child(even)
+{
+    background-color: #f2f2f2;
+}
+
+#output tr:hover 
+{
+    background-color: #ddd;
+}
+
