@@ -17,75 +17,101 @@ http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/rmsk.txt.gz )
 ## Install Tools
 Installation Steps:
 Tabix and bgzip
+```
 Download latest tabix jar from the link:https://sourceforge.net/projects/samtools/files/tabix/ 
 tar -xjf tabix-0.2.6.tar.bz2
 cd tabix-0.2.6/
 make
 Make install
+```
 Bedtools:
 Run the following lines in the terminal to install bedtools:
+```
 Ubuntu
 apt-get install bedtools
+```
+```
 Mac
 brew tap homebrew/science
 brew install bedtools
-
+```
 
 
 After downloading just extract the .gz file and use head command to see content of the file:
 
 Extract the bgzip file:
+```
 bgzip -d rmsk.txt.gz
 Head rmsk.txt
 mv  rmsk.txt rmsk.bed
+```
 For tabix to work start position and end position should be sorted: 
 Here column 6 is the chromosome and column 7,8 is the starting and the ending position
+```
 sort -k6,6 -k7,7n -k8,8n rmsk.bed >> sortedrmsk.bed
+```
 Once the file is created, use bgzip to compress the .bed file:
+```
 Bgzip sortedrmsk.bed
+```
 It will create sortedrmsk.bed.gz file which can be used with the tabix.
 To create index file(.tbi) using  tabix use the following command:
+```
 tabix -p bed sortedrmsk.bed.gz -s6 -b7 -e8
+````
 Parameters in the command: 
+```
 -p bed - Tells about the type of input file
 Sortedrmsk.bed.gz - Input file
 -s6 - Tells about the column of the sequence (In this case 6th column)
 -b7 - Tells about the column having starting position of sequence ( In this case 7th column)
 -e8 - Tells about the column having ending position of sequence ( In this case 8th column)
-
+```
 To test from terminal, use the following command:
+```
 tabix sortedextrarmsk.bed.gz -s6 -b7 -e8 chr1:10000-20000
-
+```
 Currently the application assumes that the columns in data file starts with the sequence. To convert the downloaded file to that, run the following commands:
-
+```
 Extract the bgzip file:
 bgzip -d rmsk.txt.gz
-
+```
 Put columns in new file
+```
 cut -f6,7,8,9,10,11,12,13,14,15,16,17 rmsk.txt >> rmsk.bed
-
+```
 Sort the file
+```
 Sort -k1,1 -k2,2n -k3,3n rmsk.bed >> sortedrmsk.bed
+```
 Alternatively bedtools can be installed to sort the file:
+
 Run the following lines in the terminal to install bedtools:
+```
 Ubuntu
 apt-get install bedtools
+```
+```
 Mac
 brew tap homebrew/science
 brew install bedtools
-
+```
 Once it is installed, use the following command to sort the input file
+```
 sortBed -i rmsk.bed
-
+```
 Use bgzip to compress the file:
+```
 Bgzip -c rmsk.bed >> rmsk.bed.gz
-
+```
 Use tabix to generate .tbi file
+```
 Tabix -p bed rmsk.bed.gz
-
+```
 Use tabix to filter by chromosome:
+```
 Tabix rmsk.bed.gz chr1:10000-20000
-
+```
 From the `tabix` manual:
 ```
 Tabix indexes a TAB-delimited genome position file in.tab.bgz and creates an
