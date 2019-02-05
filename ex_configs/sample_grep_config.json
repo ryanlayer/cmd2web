@@ -1,0 +1,55 @@
+[
+    {
+        "name" : "simpleGrep",
+        "arguments" :
+        [
+            {
+                "name" : "file",
+                "fixed" : "true",
+                "type" : "string",
+                "value" : "/usr/share/dict/words"
+            },
+            {
+                "name" : "pattern",
+                "fixed" : "false",
+                "type" : "string"
+            }
+        ],
+        "command":
+        [
+            "/usr/bin/grep",
+            "$pattern",
+            "$file"
+        ],
+
+        "output" :
+        {
+            "type" : "text_stream",
+            "sep" : "\t"
+        }
+    },
+   {
+        "name" : "simpleHead",
+        "arguments" :
+        [
+            {
+                "name" : "file",
+                "fixed" : "true",
+                "type" : "string",
+                "value" : "/usr/share/dict/words"
+            }
+        ],
+        "command":
+        [
+            "/usr/bin/head",
+            "$file"
+        ],
+
+        "output" :
+        {
+            "type" : "text_stream",
+            "sep" : "\t"
+        }
+    }
+
+]

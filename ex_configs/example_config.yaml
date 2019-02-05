@@ -1,0 +1,82 @@
+ Services:
+    -
+        name : simpleRepeat
+        arguments : 
+            -
+                name : file
+                fixed : 'true'
+                type : string
+                value : /Users/rl/ref/repeats/ucsc/simpleRepeat.bed.gz
+            -
+                name : chromosome
+                fixed : 'false'
+                type : string
+            -
+                name : start
+                fixed : 'false'
+                type : integer
+            -
+                name : end
+                fixed : 'false'
+                type : integer
+        command :
+            - /usr/local/bin/tabix
+            - $file
+            - $chromosome:$start-$end
+        output :
+            type : text_stream
+            sep : \t
+    -
+        name : chainSelf
+        arguments : 
+            -
+                name : file
+                fixed : 'true'
+                type : string
+                value : /Users/rl/ref/repeats/ucsc/chainSelf.bed.gz
+            -
+                name : chromosome
+                fixed : 'false'
+                type : string
+            -
+                name : start
+                fixed : 'false'
+                type : integer
+            -
+                name : end
+                fixed : 'false'
+                type : integer
+        command :
+            - /usr/local/bin/tabix
+            - $file
+            - $chromosome:$start-$end
+        output :
+            type : text_stream
+            sep : \t
+    -
+        name : rmsk
+        arguments : 
+            -
+                name : file
+                fixed : 'true'
+                type : string
+                value : /home/rohit/Documents/Academics/sem4/IndependentStudy/repo/cmd2web/data/sortedrmsk.bed.gz
+            -
+                name : chromosome
+                fixed : 'false'
+                type : string
+            -
+                name : start
+                fixed : 'false'
+                type : integer
+            -
+                name : end
+                fixed : 'false'
+                type : integer
+        command :
+            - /usr/local/bin/tabix
+            - $file
+            - $chromosome:$start-$end
+        output :
+            type : text_stream
+            sep : \t

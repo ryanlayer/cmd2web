@@ -4,7 +4,7 @@ import re
 import random
 from flask import Flask,send_file
 import requests
-
+import settings
 #{{{def test_required(name, required, config):
 def test_required(name, required, config):
     for r in required:
@@ -353,17 +353,18 @@ class Server:
     #{{{def load(config_file):
     @staticmethod
     def load(config_file):
-        try:
-            f = open(config_file, 'r')
-        except Exception as e:
-             sys.exit('ERROR loading config file. "' + str(e) + '"')
+        # try:
+        #     f = open(config_file, 'r')
+        # except Exception as e:
+        #      sys.exit('ERROR loading config file. "' + str(e) + '"')
            
         try:
-            server_config = json.load(f)
+            server_config = settings.Settings(type= "Services",filepath = config_file)
+            # server_config = json.load(f)
         except Exception as e:
-             sys.exit('ERROR loading config file. "' + str(e) + '"')
+             sys.exit('ERROR loading server config "' + str(e) + '"')
 
-        f.close()
+        # f.close()
 
         services = {}
         for service_config in server_config:
