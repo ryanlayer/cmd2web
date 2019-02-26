@@ -407,7 +407,7 @@ source cmd2web_env/bin/activate
 pip install flask requests numpy Cython cyvcf2 pyyaml pyopenssl flask-cors mod_wsgi
 ```
 
-#Apache Setup
+### Apache Setup
 
 To Install Apache:- 
 ```
@@ -524,5 +524,5 @@ Server address:
 http://localhost/cmd2web/
 ```
 
-#Setting Server:
+# Setting Server:
 Currently if there is apache_conf.yaml file, then apache server will be the default server. If on some system that file is not present, then a normal python server can be used. 
