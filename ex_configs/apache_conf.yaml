@@ -1,0 +1,5 @@
+External_Server : yes
+Default_Apache_Conf :
+    Default_Config_File : ../ex_configs/example_config.yaml
+    Timeout : 10
+    No_Access_Control_Header : no

@@ -404,5 +404,125 @@ The easiest way to install `cmd2web` is with `virtualenv`:
 ```
 virtualenv -p /usr/local/bin/python3.6 cmd2web_env
 source cmd2web_env/bin/activate
-pip install flask requests numpy Cython cyvcf2 pyyaml pyopenssl
+pip install flask requests numpy Cython cyvcf2 pyyaml pyopenssl flask-cors mod_wsgi
 ```
+
+#Apache Setup
+
+To Install Apache:- 
+```
+sudo apt-get update
+sudo apt-get install apache2
+```
+
+To Add new site we need to add new configuration for our website in /etc/apache/sites-available:
+
+sudo nano /etc/apache/sites-available/myweb.conf
+```
+<VirtualHost *:80>
+     # Add machine's IP address (use ifconfig command)
+     ServerName localhost
+     # Give an alias to to start your website url with
+     # Using cmd2web, it means in URL you have to write localhost/cmd2web to access the application. The path after that is path to your wsgi file. Change it accordingly.
+     WSGIScriptAlias /cmd2web somepath/flaskapp.wsgi
+     # Mention the directory which should be accessible by your application. This will be directory which has all the files.
+     <Directory /home/rohit/Documents/Academics/sem4/IndependentStudy/forkedrepo/cmd2web/>
+     # set permissions as per apache2.conf file
+            Options FollowSymLinks
+            AllowOverride None
+            Require all granted
+     </Directory>
+     ErrorLog ${APACHE_LOG_DIR}/error.log
+     LogLevel warn
+     CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+
+```
+
+create your flaskapp.wsgi file at your preferred location:
+```
+nano flaskapp.wsgi
+```
+```
+#!/usr/bin/python
+import sys,os
+import logging
+#Path to your virtualenv
+activate_this = 'PATH_TO_VIRTUAL_ENV/activate_this.py'
+with open(activate_this) as file_:
+    exec(file_.read(), dict(__file__=activate_this))
+logging.basicConfig(stream=sys.stderr)
+#Location where your server.py file is present.
+sys.path.insert(0,"PATH_TO_SRC_DIRECTORY")
+
+from server import app as application
+```
+
+Enable site:
+```
+sudo a2ensite flaskapp
+```
+Add the site to https:
+
+For encrypting a web connection we need certificate from CA (certificate authority) or we can use self signed certificates. Let's create a self signed certificate using the following command.
+
+```
+openssl req -x509 -newkey rsa:2048 -keyout mykey.key -out mycert.pem -days 365 -nodes
+sudo cp mycert.pem /etc/ssl/certs
+sudo cp mykey.key /etc/ssl/private
+```
+Enable ssl on the server:
+```
+sudo a2enmod ssl
+```
+
+Once we create key, we have to add our site and the key to the /etc/apache2/sites-available/default-ssl.conf
+
+```
+sudo nano /etc/apache2/sites-available/default-ssl.conf
+```
+
+Add directory access and path to your website :
+```
+# Give an alias to to start your website url with
+# Using cmd2web, it means in URL you have to write localhost/cmd2web to access the application. The path after that is path to your wsgi file. Change it accordingly.
+WSGIScriptAlias /cmd2web PATH_TO_WSGI/flaskapp.wsgi
+# Mention the directory which should be accessible by your application. This will be directory which has all the files.
+            <Directory /home/rohit/Documents/Academics/sem4/IndependentStudy/forkedrepo/cmd2web/>
+            # set permissions as per apache2.conf file
+                    Options FollowSymLinks
+                    AllowOverride None
+                    Require all granted
+            </Directory>
+```
+
+Locate SSLCertificateFile & SSLCertificateKeyFile  and replace the path with the key and certificate file:
+```
+SSLCertificateFile  /etc/ssl/certs/cmd2web.pem
+SSLCertificateKeyFile /etc/ssl/private/cmd2web.key
+```
+
+Enable the SSL site:
+```
+sudo a2ensite default-ssl.conf
+```
+
+Restart the apache server:
+```
+sudo service apache2 restart
+```
+
+To access site:
+```
+HTTP:
+http://localhost/cmd2web/?service=rmsk&chromosome=chr1&start=10000
+
+HTTPS:
+https://localhost/cmd2web/?service=rmsk&chromosome=chr1&start=10000
+
+Server address:
+http://localhost/cmd2web/
+```
+
+#Setting Server:
+Currently if there is apache_conf.yaml file, then apache server will be the default server. If on some system that file is not present, then a normal python server can be used. 

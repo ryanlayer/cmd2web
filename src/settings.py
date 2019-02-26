@@ -5,7 +5,9 @@ import sys
 class Settings():
     def __new__(self, type=None, filepath=None):
         try:
-            f = open(filepath, 'r')
+            current_directory= os.path.dirname(__file__)
+            complete_file_path=os.path.join(current_directory, filepath)
+            f = open(complete_file_path, 'r')
             self.all_file = yaml.safe_load(f)
             f.close()
         except Exception as e:

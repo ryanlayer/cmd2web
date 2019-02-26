@@ -8,16 +8,32 @@ import io
 import re
 import random
 import cmd2web
-
+import os
+import settings
 from OpenSSL import SSL
+from flask_cors import CORS
+from pathlib import Path
 
 app = Flask(__name__)
-
+CORS(app)
 config = None
 server = None
 timeout=10
-add_accesss_control = True
+apache_server = False
 
+
+current_directory= os.path.dirname(__file__)
+apache_config_file_path=os.path.join(current_directory, '../ex_configs/apache_conf.yaml')
+apache_file = Path(apache_config_file_path)
+if apache_file.is_file():
+    apache_server = True
+else:
+    apache_server = False
+'''Get the boolean value for apache server'''
+
+add_accesss_control = True
+# myenvvar = os.environ["my_config_file"]
+# sys.stderr.write("hello there from my CGI script.{0}\n".format(myenvvar))
 @app.after_request
 def after_request(response):
     if add_accesss_control:
@@ -30,6 +46,7 @@ def after_request(response):
 
 @app.route('/info')
 def info():
+    sys.stderr.write("hello there from info method my CGI script.======={0}=======\n".format(server))
     return json.dumps(server.get_info())
 
 @app.route('/')
@@ -47,23 +64,27 @@ def service():
         return cmd2web.Server.error('Argument mismatch')
 
     service_instance = server.services[service].copy()
-    
+    sys.stderr.write("\n\n\nService Isntance: {0}\n\n\n".format(service_instance))
     try:
         cmd = service_instance.make_cmd(request.args)
     except Exception as e:
         return cmd2web.Server.error(str(e))
-
-    print(' '.join(cmd))
+    sys.stderr.write("\n\n\nService Isntance Command: {0}\n\n\n".format(cmd))
+    # print(' '.join(cmd))
 
     out_file_name = '/tmp/' + str(random.randint(0,sys.maxsize)) + '.out'
+    sys.stderr.write("\n\n\nOut file name: {0}\n\n\n".format(out_file_name))
 
     f = open(out_file_name, 'w')
-
+    sys.stderr.write("\n\n\nFile opened with timeout: {0}---{1} ---{2}\n\n\n".format(out_file_name,f,timeout))
     try:
         proc = subprocess.check_call(cmd,
-                                     stderr=sys.stderr,
+                                     stderr=None,
                                      stdout=f,
                                      timeout=timeout)
+        sys.stderr.write("\n\n\Command: {0}\n\n\n".format(cmd))
+        # res = subprocess.check_output(cmd,stderr=sys.stderr)
+        # sys.stderr.write("\n\n\nResult: {0}\n\n\n".format(res))
     except subprocess.TimeoutExpired as e:
         print('Time Out')
         return cmd2web.Server.error('Time limit for current request exceed.')
@@ -71,13 +92,35 @@ def service():
         return cmd2web.Server.error(str(e))
 
     f.close()
-
+    sys.stderr.write("\n\n\nOut file name after processing: {0}\n\n\n".format(out_file_name))
     return service_instance.process_result(out_file_name)
+##################Extra for Apache server - start#############
+def apache_conf():
+    external_server = settings.Settings(type= "External_Server",filepath = apache_config_file_path)
+    sys.stderr.write("hello external_server from my CGI script-----{0}----\n".format(external_server))
+    if(external_server):
+        args = settings.Settings(type= "Default_Apache_Conf",filepath = apache_config_file_path)
+        timeout = args['Timeout']
+        sys.stderr.write("hello there from inside main method my CGI script.===={0}==={1}===={2}===\n".format(timeout,args['Default_Config_File'],args['No_Access_Control_Header']))
+        server = cmd2web.Server.load(args['Default_Config_File'])
+        if args['No_Access_Control_Header']:
+            add_accesss_control = False
+        return server
+    
+if(apache_server):
+    #Setting config object for the apache server.
+    server = apache_conf()
+##################Extra for Apache server - end#############
+
 
 if __name__ == '__main__':
-
+    sys.stderr.write("hello there from inside main method my CGI script.==============\n")
     parser = argparse.ArgumentParser(description='command to web server.')
 
+    # parser.add_argument('--config',
+    #                     dest='config',
+    #                     required=True,
+    #                     help='Configuration file.')
     parser.add_argument('--config',
                         dest='config',
                         required=True,
@@ -115,7 +158,9 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     timeout = args.timeout
+    # app.logger.info('testing info log'+args.config)
     server = cmd2web.Server.load(args.config)
+    # server = cmd2web.Server.load('../ex_configs/example_config.yaml')
 
     if args.no_access_control_header:
         add_accesss_control = False
