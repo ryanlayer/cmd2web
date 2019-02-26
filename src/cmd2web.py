@@ -1,3 +1,4 @@
+
 import json
 import sys
 import re
@@ -5,6 +6,7 @@ import random
 from flask import Flask,send_file
 import requests
 import settings
+
 #{{{def test_required(name, required, config):
 def test_required(name, required, config):
     for r in required:
@@ -199,7 +201,7 @@ class Output:
 
 #{{{class Service:
 class Service:
-
+    sys.stderr.write("Inside service class of cm2web from my CGI script.\n\n\n")
     #{{{def replace_variable(field, variable_table):
     @staticmethod
     def replace_variable(field, variable_table):
@@ -217,6 +219,7 @@ class Service:
     #{{{uef load(config):
     @staticmethod
     def load(config):
+        sys.stderr.write("\n\n\nInside service class load method of cm2web from my CGI script.========{0}========\n\n\n\n".format(config))
         required = ['name', 'command', 'arguments', 'output']
         test_required('service', required, config)
 
@@ -310,6 +313,7 @@ class Service:
 
     #{{{ def process_result(self, out_file_name):
     def process_result(self, out_file_name):
+        sys.stderr.write("\n\n\nInside process result {0}\n\n\n".format(out_file_name))
         if self.output.type == 'text_stream':
             result = {"success":  1}
             out = []
@@ -353,12 +357,14 @@ class Server:
     #{{{def load(config_file):
     @staticmethod
     def load(config_file):
+        sys.stderr.write("hello there from inside load method ..{0}..\n\n\n ".format(config_file))
         # try:
         #     f = open(config_file, 'r')
         # except Exception as e:
         #      sys.exit('ERROR loading config file. "' + str(e) + '"')
            
         try:
+            print("Trying to open file",config_file);
             server_config = settings.Settings(type= "Services",filepath = config_file)
             # server_config = json.load(f)
         except Exception as e:
