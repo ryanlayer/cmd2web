@@ -9,6 +9,25 @@
         - tail
  Services:
     -
+        name : simpleGrep
+        arguments : 
+            -
+                name : file
+                fixed : 'true'
+                type : string
+                value : /usr/share/dict/words
+            -
+                name : pattern
+                fixed : 'false'
+                type : string
+        command :
+            - /bin/grep
+            - $pattern
+            - $file
+        output :
+            type : text_stream
+            sep : \t
+    -
         name : simpleRepeat
         arguments : 
             -
@@ -64,6 +83,7 @@
             sep : \t
     -
         name : rmsk
+        group : Restricted
         arguments : 
             -
                 name : file

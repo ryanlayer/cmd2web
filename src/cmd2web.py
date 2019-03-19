@@ -222,6 +222,7 @@ class Service:
         sys.stderr.write("\n\n\nInside service class load method of cm2web from my CGI script.========{0}========\n\n\n\n".format(config))
         required = ['name', 'command', 'arguments', 'output']
         test_required('service', required, config)
+        group = config.get('group',"None")
 
         name = config['name']
         command = config['command']
@@ -232,13 +233,17 @@ class Service:
             arguments.append(argument)
 
         output = Output.load(config['output'])
-
-        return Service(name, command, arguments, output)
+        if(group != "None"):
+            return Service(name, command, arguments, output,group)
+        else:
+            return Service(name, command, arguments, output)
     #}}}
 
     #{{{ def __init__(self, name, command, arguments, output):
-    def __init__(self, name, command, arguments, output):
+    def __init__(self, name, command, arguments, output, group='None'):
         self.name = name
+        if(group!='None'):
+            self.group =group
         self.command = command
         self.arguments = arguments
         self.output = output
@@ -261,7 +266,7 @@ class Service:
 
     #{{{def make_cmd(self, args):
     def make_cmd(self, args):
-
+        # //pair flags with  parameter in optional case. Replace_variable..Field might be array
         for arg in self.arguments:
             if arg.fixed:
                 self.variable_table['$' + arg.name] = arg.value
@@ -274,7 +279,7 @@ class Service:
                                     arg.name + \
                                     '. Expected ' + \
                                     arg.type) 
-        
+        #DO not call replace variable on something that is optional and not provided.
         for i in range(len(self.command)):
             self.command[i] = Service.replace_variable(self.command[i],
                                                        self.variable_table)
@@ -291,7 +296,7 @@ class Service:
 
         extra = False
         for arg in args:
-            if arg == 'service':
+            if arg == 'service' or arg == 'token':
                 continue
             if arg not in variable_args:
                 extra = True
@@ -338,9 +343,11 @@ class Service:
             arguments.append( argument.copy() )
 
         output = self.output.copy()
-    
+        group="None"
+        if(hasattr(self, 'group')):
+            group = self.group
 
-        return Service(name, command, arguments, output)
+        return Service(name, command, arguments, output,group)
     #}}}
 
 #}}}

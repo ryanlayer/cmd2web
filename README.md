@@ -158,30 +158,22 @@ $ curl "http://127.0.0.1:8080/?service=rmsk&chromosome=chr1&start=10000&end=2000
 ## Server config
 Config file has been updated from json to yaml file. 
 A skeleton of the config is:
-
 ```
-[
-    {
-        "name" : "",
-        "arguments" :
-        [
-            {
-                "name" : "",
-                "fixed" : "",
-                "type" : "",
-                "value" : ""
-            },
-        ],
-        "command": [ "" ],
-
-        "output" :
-        {
-            "type" : ""
-            "sep" : ""
-        }
-    }
-]
+-
+        name : 
+        arguments : 
+            -
+                name : 
+                fixed : 
+                type : 
+                value : 
+        command :
+            - 
+        output :
+            type : 
+            sep : 
 ```
+
 
 Each element in the config is described below.
 
@@ -239,33 +231,6 @@ arguments :
         type : integer
 ```
 
-The arguments array for this service in json is:
-```
-"arguments" :
-[
-    {
-        "name" : "file",
-        "fixed" : "true",
-        "type" : "string",
-        "value" : "/data/rmsk.bed.gz"
-    },
-    {
-        "name" : "chromosome",
-        "fixed" : "false",
-        "type" : "string"
-    },
-    {
-        "name" : "start",
-        "fixed" : "false",
-        "type" : "integer"
-    },
-    {
-        "name" : "end",
-        "fixed" : "false",
-        "type" : "integer"
-    }
-]
-```
 
 When a user requests this service, the server fills a variable table with both
 fixed and variable attributes. The server will return an exception for requests
@@ -404,7 +369,7 @@ The easiest way to install `cmd2web` is with `virtualenv`:
 ```
 virtualenv -p /usr/local/bin/python3.6 cmd2web_env
 source cmd2web_env/bin/activate
-pip install flask requests numpy Cython cyvcf2 pyyaml pyopenssl flask-cors mod_wsgi
+pip install flask requests numpy Cython cyvcf2 pyyaml pyopenssl flask-cors mod_wsgi werkzeug pandas
 ```
 
 ### Apache Setup
@@ -525,4 +490,237 @@ http://localhost/cmd2web/
 ```
 
 # Setting Server:
-Currently if there is apache_conf.yaml file, then apache server will be the default server. If on some system that file is not present, then a normal python server can be used. 
+Currently if there is apache_conf.yaml file, then apache server will be the default server. If on some system that file is not present, then a normal python server can be used.
+
+# DB Setup
+
+Tables
+```
+1. Groups - It has a list of all the groups with the following fields:
+      Name            Type     Primary Key     Description
+    - GroupID         Integer  Yes             Group ID of the group
+    - GroupName       Text     No              Group Name of the group
+    - GroupType       Text     No              Type of the group
+    - RestrictedGroup Integer  No              Boolean indicating if group is restricted (1 means restricted)
+
+2. Keys - It has a list of all the keys belonging to a particular user associated to a group.
+      Name            Type     Foreign Key     Description
+    - GroupID         Integer  Yes             Group ID of the group
+    - Token           Text     No              Token for the user
+    - Expiry          Text     No              Expiry date of token. Format mm-dd-yyyy
+    - UserEmail       Text     No              Email ID of the user
+```
+
+Every Service has a group associated to it. It can either have a value or can be blank. A group if mentioned is a restricted group. If a user calls a service which is restricted, the user needs to pass a token associated with that group provided by the admin. The results are displayed on passing the correct token otherwise an error is displayed.
+
+# Command Line Database application for the Admin
+
+The admin has following methods available (DBCommandLineTool.py):
+
+To get a list of all the commands available:
+```
+Go to the directory having file DBCommandLineTool.py
+Run the following command: 
+python DBCommandLineTool.py --help
+
+Output- 
+Usage: DBCommandLineTool.py [OPTIONS] COMMAND [ARGS]...
+
+  Command line interface for database interaction.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  creategroup           Create new group.
+  createkeybygroupid    Create new token by group id.
+  createkeybygroupname  Create new token by group name.
+  deletegroup           Delete group by name.
+  deletekeybygroup      Delete key by group name.
+  deletekeybyuser       Delete key by group user.
+  getkeybygroupname     Get keys by Group.
+  getkeybyuser          Get Keys by User.
+
+``` 
+
+Click and pandas python library is used to create the command line application and to display the results.
+All the commands require a user to pass the input parameters. A user can use the help command to find all input parameters required:
+```
+1. CreateGroup Command
+
+Input- python DBCommandLineTool.py creategroup --help
+
+Output-
+Usage: DBCommandLineTool.py creategroup [OPTIONS]
+For eg: python DBCommandLineTool.py creategroup --gname=DummyGroup --gtype=Test --restricted=1
+
+  Description:Create a new group.
+
+  Input parameters required:
+
+  - gname - Group Name
+
+  - gytpe - Group Type
+
+  - restricted - Boolean indicating whether group is restricted
+
+Options:
+  --gname TEXT       The group name.
+  --gtype TEXT       Type of the group.
+  --restricted TEXT  If the group is restricted group. 1 if group is
+                     restricted ,0 if not restricted.
+  --help             Show this message and exit.
+
+
+
+2. CreateKeyByGroupID Command
+
+Input- python DBCommandLineTool.py createkeybygroupid --help
+
+Output-
+Usage: DBCommandLineTool.py createkeybygroupid [OPTIONS]
+For eg: python DBCommandLineTool.py createkeybygroupid --gid=9 --token=122344434 --expiry=04-27-2019 --email=ro@colorado.edu
+
+  Description:Create  new token by group id.
+
+   Input parameters required:
+
+  - gid - Group ID
+
+  - token - Token for the user
+
+  - expiry - Token expiry date
+
+  - email - Email id of the user
+
+Options:
+  --gid TEXT     The group id.
+  --token TEXT   Token for the user associated to a group.Format (mm-dd-yyyy).
+  --expiry TEXT  Expiry date for the token.
+  --email TEXT   Email id of the user.
+  --help         Show this message and exit.
+
+
+3. CreateKeyByGroupName Command
+
+Input-python DBCommandLineTool.py createkeybygroupname --help
+
+Output-
+Usage: DBCommandLineTool.py createkeybygroupname [OPTIONS]
+Foe eg: python DBCommandLineTool.py createkeybygroupname --gname=DummyGroup --token=122344435 --expiry=05-27-2019 --email=rom@colorado.edu
+
+  Description:Create  new token by group name.
+
+   Input parameters required:
+
+  - gname - Group Name
+
+  - token - Token for the user
+
+  - expiry - Token expiry date
+
+  - email - Email id of the user
+
+Options:
+  --gname TEXT   The group name.
+  --token TEXT   Token for the user associated to a group.
+  --expiry TEXT  Expiry date for the token. Format (mm-dd-yyyy).
+  --email TEXT   Email id of the user.
+  --help         Show this message and exit.
+
+
+4. DeleteGroup Command
+
+Input-python DBCommandLineTool.py deletegroup --help
+
+Output-
+Usage: DBCommandLineTool.py deletegroup [OPTIONS]
+For eg: python DBCommandLineTool.py deletegroup  --gname=DummyGroup
+
+  Description:Delete group by name.
+
+   Input parameters required:
+
+  - gname - Group Name
+
+Options:
+  --gname TEXT  The group name.
+  --help        Show this message and exit.
+
+
+5. DeleteKeyByGroup Command
+
+Input- python DBCommandLineTool.py deletekeybygroup --help
+
+Output-
+Usage: DBCommandLineTool.py deletekeybygroup [OPTIONS]
+For eg:python DBCommandLineTool.py deletekeybygroup  --gname=DummyGroup
+
+  Description:Delete key by group name.
+
+  Input parameters required:
+
+  - gname - Group Name
+
+Options:
+  --gname TEXT  The group name.
+  --help        Show this message and exit.
+
+
+6. DeleteKeyByUser Command
+
+Input-python DBCommandLineTool.py deletekeybyuser --help
+
+Output-
+Usage: DBCommandLineTool.py deletekeybyuser [OPTIONS]
+For eg: python DBCommandLineTool.py deletekeybyuser --email=rom@colorado.edu
+
+  Description:Delete key by group user.
+
+  Input parameters required:
+
+  - email - email id of the user
+
+Options:
+  --email TEXT  The user email.
+  --help        Show this message and exit.
+
+
+7. GetKeyByGroupName Command
+
+Input- python DBCommandLineTool.py getkeybygroupname --help
+
+Output-
+Usage: DBCommandLineTool.py getkeybygroupname [OPTIONS]
+For eg: python DBCommandLineTool.py getkeybygroupname --gname=DummyGroup
+
+  Description:Get keys by Group.
+
+  Input parameters required:
+
+  - gname - Group name
+
+Options:
+  --gname TEXT  The Group name.
+  --help        Show this message and exit.
+
+8. GetKeyByUser Command
+
+Input-python DBCommandLineTool.py getkeybyuser --help
+
+Output-
+Usage: DBCommandLineTool.py getkeybyuser [OPTIONS]
+For eg:python DBCommandLineTool.py getkeybyuser --email=rom2@colorado.edu
+  
+  Description:Get Keys by User.
+
+  Input parameters required:
+
+  - email - email id of the user
+
+Options:
+  --email TEXT  The user email.
+  --help        Show this message and exit.
+
+```
+

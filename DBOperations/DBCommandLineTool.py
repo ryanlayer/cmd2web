@@ -1,0 +1,167 @@
+import click
+from flask import Flask,request
+import os
+from DBInsertion import DBInsertion
+from werkzeug.utils import secure_filename
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER']='/tmp/cmd2webfiles'
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+current_directory= os.path.dirname(__file__)
+database_file_path = os.path.join(current_directory, "../DBScript/CMD2WEB.sqlite")
+database_object = DBInsertion(database_file_path)
+@click.group()
+# @click.option('-i', '--input', type=click.File('r'))
+def cli():
+    """Command line interface for database interaction."""
+    pass
+
+
+@cli.command()
+@click.option('--gname', help='The group name.')
+@click.option('--gtype', help='Type of the group.')
+@click.option('--restricted', help='If the group is restricted group. 1 if group is restricted ,0 if not restricted.')
+def createGroup(gname, gtype,restricted):
+    """Description:Create a new group. \n
+    Input parameters required: \n
+    - gname - Group Name \n
+    - gytpe - Group Type \n
+    - restricted - Boolean indicating whether group is restricted"""
+    group_name = gname
+    group_type = gtype
+
+    if (group_name != None and restricted != None):
+    # insert
+            print(group_name, group_type, restricted)
+            database_object.insert_group(group_name, group_type, restricted)
+            print("Group {0} created".format(group_name))
+
+    else:
+        print(group_name, group_type, restricted)
+        print("Parameter missing")
+    # click.echo('Hello %s! - %s! - %d' % gname, gtype,restricted)
+
+
+@cli.command()
+@click.option('--gid', help='The group id.')
+@click.option('--token', help='Token for the user associated to a group.Format (mm-dd-yyyy).')
+@click.option('--expiry', help='Expiry date for the token.')
+@click.option('--email', help='Email id of the user.')
+def createKeyByGroupID(gid, token, expiry, email):
+    """Description:Create  new token by group id.\n
+     Input parameters required: \n
+    - gid - Group ID \n
+    - token - Token for the user \n
+    - expiry - Token expiry date \n
+    - email - Email id of the user"""
+
+    group_id = gid
+    token = token
+    expiry = expiry
+    user_email = email
+    if (group_id != None and token != None and expiry != None and user_email != None):
+        database_object.insert_key(group_id, token, expiry, user_email)
+        print("Token:{0} inserted for the user:{1} with expiry:{2}".format(token, user_email, expiry))
+    else:
+        print("Parameter missing")
+    # click.echo('Hello %s! - %s! - %s! - %s!' % gid, token, expiry, email)
+
+
+@cli.command()
+@click.option('--gname', help='The group name.')
+@click.option('--token', help='Token for the user associated to a group.')
+@click.option('--expiry', help='Expiry date for the token. Format (mm-dd-yyyy).')
+@click.option('--email', help='Email id of the user.')
+def createKeyByGroupName(gname, token, expiry, email):
+    """Description:Create  new token by group name. \n
+     Input parameters required: \n
+    - gname - Group Name \n
+    - token - Token for the user \n
+    - expiry - Token expiry date \n
+    - email - Email id of the user"""
+    group_name = gname
+    token = token
+    expiry = expiry
+    user_email = email
+    group_id = None
+    if (group_name != None):
+        # get group id
+        group_id = database_object.get_group_name_from_id(group_name)
+    else:
+        return "No group name"
+    if (group_id != None and token != None and expiry != None and user_email != None):
+        database_object.insert_key(group_id, token, expiry, user_email)
+        print("Token:{0} inserted for the user:{1} with expiry:{2}".format(token, user_email, expiry))
+    else:
+        print("Parameter missing")
+
+@cli.command()
+@click.option('--gname', help='The group name.')
+def deleteGroup(gname):
+    """Description:Delete group by name.\n
+     Input parameters required: \n
+    - gname - Group Name """
+    group_name = gname
+    if (group_name != None):
+        database_object.delete_group(group_name)
+        print("Deleted group {0}".format(group_name))
+    else:
+        print("Check group info")
+    # click.echo('Hello %s! - %s! - %s! - %s!' % gname, token, expiry, email)
+
+
+@cli.command()
+@click.option('--gname', help='The group name.')
+def deleteKeyByGroup(gname):
+    """Description:Delete key by group name.\n
+    Input parameters required: \n
+    - gname - Group Name """
+    group_name = gname
+    if (group_name != None):
+        database_object.delete_group_keys(group_name)
+        print("Deleted keys for group {0}".format(group_name))
+    else:
+        print("Check group info")
+    # click.echo('Hello %s! - %s! - %s! - %s!' % gname, token, expiry, email)
+
+@cli.command()
+@click.option('--email', help='The user email.')
+def deleteKeyByUser(email):
+    """Description:Delete key by group user.\n
+    Input parameters required: \n
+    - email - email id of the user """
+    user_email = email
+    if (user_email != None):
+        database_object.delete_user_keys(user_email)
+        print("Deleted keys for user {0}".format(user_email))
+    else:
+        print("Check group info")
+    # click.echo('Hello %s! - %s! - %s! - %s!' % gname, token, expiry, email)
+
+@cli.command()
+@click.option('--email', help='The user email.')
+def getKeyByUser(email):
+    """Description:Get Keys by User.\n
+    Input parameters required: \n
+    - email - email id of the user """
+    user_email = email
+    if (user_email != None):
+        result = database_object.get_user_keys(user_email)
+        print(result)
+    else:
+        print("Check group info")
+
+@cli.command()
+@click.option('--gname', help='The Group name.')
+def getKeyByGroupName(gname):
+    """Description:Get keys by Group.\n
+    Input parameters required: \n
+    - gname - Group name """
+    group_name = gname
+    if (group_name != None):
+        result = database_object.get_user_keys_by_group_name(group_name)
+        print(result)
+    else:
+        print("Check group info")
+
+if __name__ == '__main__':
+    cli()
