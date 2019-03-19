@@ -1,5 +1,6 @@
 #!//usr/bin/env python
 import subprocess
+from database_connection import DatabaseConnection
 import json
 import sys
 from flask import Flask,request,send_file,abort,Response
@@ -11,7 +12,7 @@ import cmd2web
 import os
 import settings
 from OpenSSL import SSL
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from pathlib import Path
 
 app = Flask(__name__)
@@ -51,6 +52,9 @@ def info():
 
 @app.route('/')
 def service():
+    #Note: Add the path to the settings file
+    database_file_path = os.path.join(current_directory, "../DBScript/CMD2WEB.sqlite")
+    database_object = DatabaseConnection(database_file_path)
 
     service = request.args.get('service')
 
@@ -64,19 +68,36 @@ def service():
         return cmd2web.Server.error('Argument mismatch')
 
     service_instance = server.services[service].copy()
-    sys.stderr.write("\n\n\nService Isntance: {0}\n\n\n".format(service_instance))
+    sys.stderr.write("\n\n\nService Instance: {0}\n\n\n".format(service_instance))
+    if(hasattr(service_instance, 'group')):
+        restricted = database_object.get_restricted_access(service_instance.group)
+        if(restricted == True):
+            #Check if token is present in parameter
+            token = request.args.get('token');
+            if not token:
+                return cmd2web.Server.error('Access restricted without token.')
+            token_access = database_object.check_token_access(service_instance.group,token)
+            if(token_access == True):
+                return process_service(service_instance)
+            else:
+                return cmd2web.Server.error('Wrong or expired token. Access Denied')
+        else:
+            return process_service(service_instance)
+    else:
+        return process_service(service_instance)
+
+##################Extra for Apache server - start#############
+
+def process_service(service_instance):
     try:
         cmd = service_instance.make_cmd(request.args)
     except Exception as e:
         return cmd2web.Server.error(str(e))
-    sys.stderr.write("\n\n\nService Isntance Command: {0}\n\n\n".format(cmd))
+
     # print(' '.join(cmd))
 
     out_file_name = '/tmp/' + str(random.randint(0,sys.maxsize)) + '.out'
-    sys.stderr.write("\n\n\nOut file name: {0}\n\n\n".format(out_file_name))
-
     f = open(out_file_name, 'w')
-    sys.stderr.write("\n\n\nFile opened with timeout: {0}---{1} ---{2}\n\n\n".format(out_file_name,f,timeout))
     try:
         proc = subprocess.check_call(cmd,
                                      stderr=None,
@@ -94,7 +115,7 @@ def service():
     f.close()
     sys.stderr.write("\n\n\nOut file name after processing: {0}\n\n\n".format(out_file_name))
     return service_instance.process_result(out_file_name)
-##################Extra for Apache server - start#############
+
 def apache_conf():
     external_server = settings.Settings(type= "External_Server",filepath = apache_config_file_path)
     sys.stderr.write("hello external_server from my CGI script-----{0}----\n".format(external_server))
