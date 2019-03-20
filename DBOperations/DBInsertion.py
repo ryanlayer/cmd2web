@@ -65,3 +65,15 @@ class DBInsertion:
         query = "Select * from Keys where GroupID in (select GroupID from Groups where GroupName='{0}')".format(group_name)
         data = pd.read_sql_query(query, self.conn)
         return data
+
+    # Get groups list
+    def get_group_list(self):
+        query = "Select * from Groups"
+        data = pd.read_sql_query(query, self.conn)
+        return data
+
+    # Get keys list
+    def get_key_list(self):
+        query = "Select * from Keys"
+        data = pd.read_sql_query(query, self.conn)
+        return data
