@@ -739,7 +739,7 @@ For eg:python DBCommandLineTool.py getgrouplist
 Options:
   --help  Show this message and exit.
 
-9. GetKeyList Command
+10. GetKeyList Command
 
 Input- python DBCommandLineTool.py getgrouplist --help
 
