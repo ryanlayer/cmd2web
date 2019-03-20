@@ -492,7 +492,7 @@ http://localhost/cmd2web/
 # Setting Server:
 Currently if there is apache_conf.yaml file, then apache server will be the default server. If on some system that file is not present, then a normal python server can be used.
 
-##DB Setup
+# DB Setup
 
 Tables
 ```
