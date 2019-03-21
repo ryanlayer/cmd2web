@@ -77,3 +77,14 @@ class DBInsertion:
         query = "Select * from Keys"
         data = pd.read_sql_query(query, self.conn)
         return data
+
+    # Check token
+    def check_token_exists(self,token):
+        cur = self.conn.cursor()
+        query='select Token from Keys where Token={0}'.format(token)
+        cur.execute(query)
+        rows = cur.fetchall()
+        if len(rows) > 0:
+            return True
+        else:
+            return False

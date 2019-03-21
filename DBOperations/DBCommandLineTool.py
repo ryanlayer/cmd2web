@@ -1,7 +1,9 @@
 import click
 from flask import Flask,request
 import os
+import random
 from DBInsertion import DBInsertion
+from datetime import datetime,timedelta
 from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER']='/tmp/cmd2webfiles'
@@ -60,6 +62,12 @@ def createKeyByGroupID(gid, token, expiry, email):
     token = token
     expiry = expiry
     user_email = email
+    if(expiry==None):
+        expiry = getNewDate()
+
+    if(token==None):
+        token = generateNewToken()
+
     if (group_id != None and token != None and expiry != None and user_email != None):
         database_object.insert_key(group_id, token, expiry, user_email)
         print("Token:{0} inserted for the user:{1} with expiry:{2}".format(token, user_email, expiry))
@@ -67,6 +75,20 @@ def createKeyByGroupID(gid, token, expiry, email):
         print("Parameter missing")
     # click.echo('Hello %s! - %s! - %s! - %s!' % gid, token, expiry, email)
 
+
+# Generate new date
+def getNewDate():
+    newdate = datetime.now() + timedelta(days=365)
+    expiry = newdate.strftime('%m-%d-%Y')
+    return expiry
+
+# Generate new random token
+def generateNewToken():
+    new_token= random.randint(10000000,99999999)
+    if(database_object.check_token_exists(new_token)):
+        return generateNewToken()
+    else:
+        return new_token
 
 @cli.command()
 @click.option('--gname', help='The group name.')
@@ -85,6 +107,11 @@ def createKeyByGroupName(gname, token, expiry, email):
     token = token
     expiry = expiry
     user_email = email
+    if(expiry==None):
+        expiry = getNewDate()
+
+    if(token==None):
+        token = generateNewToken()
     group_id = None
     if (group_name != None):
         # get group id

@@ -600,6 +600,7 @@ Options:
   --email TEXT   Email id of the user.
   --help         Show this message and exit.
 
+Note: The expiry and token command is optional. If not passed random token will be generated and a new date with expiry after a year will be generated.
 
 3. CreateKeyByGroupName Command
 
@@ -628,6 +629,7 @@ Options:
   --email TEXT   Email id of the user.
   --help         Show this message and exit.
 
+Note: The expiry and token command is optional. If not passed random token will be generated and a new date with expiry after a year will be generated.
 
 4. DeleteGroup Command
 
