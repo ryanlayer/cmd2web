@@ -219,7 +219,6 @@ class Service:
     #{{{uef load(config):
     @staticmethod
     def load(config):
-        sys.stderr.write("\n\n\nInside service class load method of cm2web from my CGI script.========{0}========\n\n\n\n".format(config))
         required = ['name', 'command', 'arguments', 'output']
         test_required('service', required, config)
         group = config.get('group',"None")

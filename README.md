@@ -600,6 +600,7 @@ Options:
   --email TEXT   Email id of the user.
   --help         Show this message and exit.
 
+Note: The expiry and token command is optional. If not passed random token will be generated and a new date with expiry after a year will be generated.
 
 3. CreateKeyByGroupName Command
 
@@ -628,6 +629,7 @@ Options:
   --email TEXT   Email id of the user.
   --help         Show this message and exit.
 
+Note: The expiry and token command is optional. If not passed random token will be generated and a new date with expiry after a year will be generated.
 
 4. DeleteGroup Command
 
@@ -721,6 +723,42 @@ For eg:python DBCommandLineTool.py getkeybyuser --email=rom2@colorado.edu
 Options:
   --email TEXT  The user email.
   --help        Show this message and exit.
+
+9. GetGroupList Command
+
+Input- python DBCommandLineTool.py getgrouplist --help
+
+Output-
+Usage: DBCommandLineTool.py getgrouplist [OPTIONS]
+For eg:python DBCommandLineTool.py getgrouplist
+
+  Description:Get all the groups.
+
+  Input parameters required:
+
+  None
+
+Options:
+  --help  Show this message and exit.
+
+10. GetKeyList Command
+
+Input- python DBCommandLineTool.py getgrouplist --help
+
+Output-
+Usage: DBCommandLineTool.py getkeylist [OPTIONS]
+For eg:python DBCommandLineTool.py getkeylist
+
+  Description:Get all the keys.
+
+  Input parameters required:
+
+  None
+
+
+Options:
+  --help  Show this message and exit.
+
 
 ```
 

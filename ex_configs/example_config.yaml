@@ -83,7 +83,9 @@
             sep : \t
     -
         name : rmsk
-        group : Restricted
+        group :
+          - Restricted
+          - SimpleGroup
         arguments : 
             -
                 name : file
