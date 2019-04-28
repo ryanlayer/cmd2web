@@ -388,8 +388,8 @@ sudo nano /etc/apache/sites-available/myweb.conf
      # Add machine's IP address (use ifconfig command)
      ServerName localhost
      # Give an alias to to start your website url with
-     # Using cmd2web, it means in URL you have to write localhost/cmd2web to access the application. The path after that is path to your wsgi file. Change it accordingly.
-     WSGIScriptAlias /cmd2web somepath/flaskapp.wsgi
+     # Using cmd2web, it means in URL you have to write localhost to access the application. The path after that is path to your wsgi file. Change it accordingly.
+     WSGIScriptAlias / somepath/flaskapp.wsgi
      # Mention the directory which should be accessible by your application. This will be directory which has all the files.
      <Directory /home/rohit/Documents/Academics/sem4/IndependentStudy/forkedrepo/cmd2web/>
      # set permissions as per apache2.conf file
@@ -450,8 +450,8 @@ sudo nano /etc/apache2/sites-available/default-ssl.conf
 Add directory access and path to your website :
 ```
 # Give an alias to to start your website url with
-# Using cmd2web, it means in URL you have to write localhost/cmd2web to access the application. The path after that is path to your wsgi file. Change it accordingly.
-WSGIScriptAlias /cmd2web PATH_TO_WSGI/flaskapp.wsgi
+# Using cmd2web, it means in URL you have to write localhost to access the application. The path after that is path to your wsgi file. Change it accordingly.
+WSGIScriptAlias / PATH_TO_WSGI/flaskapp.wsgi
 # Mention the directory which should be accessible by your application. This will be directory which has all the files.
             <Directory /home/rohit/Documents/Academics/sem4/IndependentStudy/forkedrepo/cmd2web/>
             # set permissions as per apache2.conf file
@@ -480,13 +480,13 @@ sudo service apache2 restart
 To access site:
 ```
 HTTP:
-http://localhost/cmd2web/?service=rmsk&chromosome=chr1&start=10000
+http://localhost/?service=rmsk&chromosome=chr1&start=10000
 
 HTTPS:
-https://localhost/cmd2web/?service=rmsk&chromosome=chr1&start=10000
+https://localhost/?service=rmsk&chromosome=chr1&start=10000
 
 Server address:
-http://localhost/cmd2web/
+http://localhost/
 ```
 
 # Setting Server:
@@ -760,5 +760,106 @@ Options:
   --help  Show this message and exit.
 
 
+
+```
+## File Upload Service
+We need to add the service to the config file. There is a separate endpoint created for the fileupload with "/f" endpoint.
+File fixed attribute is set to false for this service.
+ For eg:
+
+```
+name : simpleFileGrep
+        arguments :
+            -
+                name : file
+                fixed : 'false'
+                type : string
+            -
+                name : pattern
+                fixed : 'false'
+                type : string
+        command :
+            - /bin/grep
+            - $pattern
+            - $file
+        output :
+            type : text_stream
+            sep : \t
 ```
 
+The file will be uploaded to the tmp folder and will be deleted once processing is complete.
+I have implemented it in 3 ways:
+
+# 1. Curl Command
+
+ For eg: If a user wants to call simpleFileGrep service and wants to upload test1.txt file. 
+
+Apache
+curl -X POST -F file=@"test1.txt" "http://localhost/f?service=simpleFileGrep&pattern=zip"
+
+Python
+curl -X POST -F file=@"test1.txt" "http://127.0.0.1:8080/f?service=simpleFileGrep&pattern=zip"
+
+-----------------------------------------------------------------------------
+# 2. File Upload Command Line Application
+
+The admin has following methods available (DBCommandLineTool.py):
+
+To get a list of all the commands available:
+```
+Go to the directory having file UploadFileTool.py
+Run the following command: 
+python UploadFileTool.py --help
+
+Usage: UploadFileTool.py [OPTIONS] COMMAND [ARGS]...
+
+  Command line interface for database interaction.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  uploadruncommand  Description: Pass your own input file to a service.
+
+``` 
+
+A user can use the help command to find all input parameters required:
+```
+1. uploadruncommand Command
+
+Input- python UploadFileTool.py uploadruncommand --help
+
+Output-
+Usage: UploadFileTool.py uploadruncommand [OPTIONS]
+
+  Description: Pass your own input file to a service.
+
+   Input parameters required:
+
+  - url - URL with the parameters
+
+  - filepath - Path of the input file
+
+  Example Usage: python UploadFileTool.py uploadRunCommand
+  --url='http://127.0.0.1:8080/f?service=simpleFileGrep&pattern=zip'
+  --filepath=/home/rohit/test3.txt
+
+Options:
+  --url TEXT       The url with parameters
+  --filepath TEXT  Path of the input file.
+  --help           Show this message and exit.
+```
+
+-----------------------------------------------------------------------------
+# 3. Web Version 
+
+Apache
+https://localhost/webapp
+
+Python
+http://localhost:8080/webapp
+
+If the file fixed is set to false for the service selected, then the file upload box will appear and user can upload any file from the system.
+
+
+  

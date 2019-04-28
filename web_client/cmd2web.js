@@ -3,6 +3,60 @@ var server_info = null;
 var server_result = null;
 var selectedService = null;
 
+$(document).on("click","#submit_btn",function(e) {
+     // Create an FormData object
+     e.preventDefault();
+     var formData = $("#form1").submit(function (e) {
+         return;
+     })
+     //formData[0] contain form data only
+     // You can directly make object via using form id but it require all ajax operation inside $("form").submit(<!-- Ajax Here   -->)
+ var formData = new FormData(formData[0]);
+ $.ajax({
+     url: $('#form1').attr('action'),
+     type: 'POST',
+     data: formData,
+     success: function (response) {
+         server_result = JSON.parse(response);
+         showData();
+         // mydiv = document.getElementById("tee");
+         // mydiv.innerHTML += response;
+         console.log(response);
+     },
+     contentType: false,
+     processData: false,
+     cache: false
+ }, false)
+ });
+
+function setForm() {
+
+     //Prevent Instant Click
+
+     // Create an FormData object
+     var formData = $("#form1").submit(function (e) {
+         return;
+     })
+     //formData[0] contain form data only
+     // You can directly make object via using form id but it require all ajax operation inside $("form").submit(<!-- Ajax Here   -->)
+ var formData = new FormData(formData[0]);
+ $.ajax({
+     url: $('#form1').attr('action'),
+     type: 'POST',
+     data: formData,
+     success: function (response) {
+         server_result = JSON.parse(response);
+         showData();
+         // mydiv = document.getElementById("tee");
+         // mydiv.innerHTML += response;
+         console.log(response);
+     },
+     contentType: false,
+     processData: false,
+     cache: false
+ }, false)
+ };
+
 $.urlParam = function(name){
     var results = new RegExp('[\?&]' + 
                              name + 
@@ -100,14 +154,57 @@ function setService() {
 
 
 function load_service() {
-    //console.log(selectedService);
+    var file_upload= false;
     var all_vals = true;
     for (var i = 0; i < server_info[selectedService].inputs.length; ++i){
+        if(server_info[selectedService].inputs[i].name == "file"){
+            file_upload=true;
+        }
+    }
+    if(file_upload){
+        var action = "/f";
+         var form_str = '<form id="form1" method="post" action='+action+' enctype="multipart/form-data">';
+         $('#input').append(form_str);
+         for (var i = 0; i < server_info[selectedService].inputs.length; ++i){
         //console.log(server_info[selectedService].inputs[i]);
-        input_str = '<input type="text" id="' + 
-                server_info[selectedService].inputs[i].name + '"' + 
-                ' placeholder="' +  
+        if(server_info[selectedService].inputs[i].name == "file"){
+            var input_str = '<input type="file" name="file" id="' +
+                server_info[selectedService].inputs[i].name + '"' +
+                ' placeholder="' +
                 server_info[selectedService].inputs[i].name + '">';
+        }
+        else{
+            var input_str = '<input type="text" id="' +
+                server_info[selectedService].inputs[i].name + '"' +
+                ' placeholder="' +
+                server_info[selectedService].inputs[i].name + '">';
+        }
+
+
+        $('#form1').append(input_str);
+
+        var this_input = $.urlParam(server_info[selectedService].inputs[i].name);
+        if (this_input) {
+            var this_val = decodeURIComponent(this_input);
+            $('#' + server_info[selectedService].inputs[i].name ).val(this_val);
+        } else {
+            all_vals = false;
+        }
+    }
+
+    $('#form1').append('<button id="submit_btn2" type="button" onclick="getData()" >Get</button>');
+    $('#form1').append('<button id="submit_btn" type="button" style="display: none;" >Get</button>');
+    $('#input').append('</form>');
+    }
+    else{
+         for (var i = 0; i < server_info[selectedService].inputs.length; ++i){
+        //console.log(server_info[selectedService].inputs[i]);
+
+            input_str = '<input type="text" id="' +
+                server_info[selectedService].inputs[i].name + '"' +
+                ' placeholder="' +
+                server_info[selectedService].inputs[i].name + '">';
+
         $('#input').append(input_str);
 
         var this_input = $.urlParam(server_info[selectedService].inputs[i].name);
@@ -121,13 +218,17 @@ function load_service() {
 
     $('#input').append('<button id="get_data" onclick="getData()">Get</button>');
 
+    }
+
+
+
     if (all_vals) {
         getData();
     }
 }
 
 function getData() {
-
+    var file_upload= false;
     var serviceSelect = document.getElementById('service-select');
     var selectedService = serviceSelect.options[serviceSelect.selectedIndex].value;
 
@@ -138,13 +239,28 @@ function getData() {
     url_params = "?service=" + selectedService;
 
     console.log(server_info[selectedService]);
-    for (var i = 0; i < server_info[selectedService].inputs.length; ++i){
-        var inputName = server_info[selectedService].inputs[i].name;
-        var inputValue = document.getElementById(inputName).value;
-        url_params += '&' + inputName + '=' + inputValue
-    }  
 
-    var get_data_promise = get_data(server_url + url_params).then(function(data) {
+    for (var i = 0; i < server_info[selectedService].inputs.length; ++i){
+        if(server_info[selectedService].inputs[i].name == "file"){
+            file_upload=true;
+        }
+    }
+    for (var i = 0; i < server_info[selectedService].inputs.length; ++i){
+        if(server_info[selectedService].inputs[i].name != "file"){
+            var inputName = server_info[selectedService].inputs[i].name;
+            var inputValue = document.getElementById(inputName).value;
+            url_params += '&' + inputName + '=' + inputValue
+        }
+    }  
+    if(file_upload){
+        var form_elem = document.getElementById('form1');
+        form_elem.action = form_elem.action+url_params;
+        // var submit_elem = document.getElementById('submit_btn');
+        // submit_elem.click();
+        setForm();
+    }
+    else{
+         var get_data_promise = get_data(server_url + url_params).then(function(data) {
         server_result = data;
     });
 
@@ -154,7 +270,10 @@ function getData() {
             console.log('DONE 1');
         }
     );
+    }
+   
 }
+
 
 function get_data(url) {
     return new Promise( function(resolve, reject) {
@@ -168,6 +287,13 @@ function get_data(url) {
     });
 }
 
+
+// request('GET', 'http://google.com')
+//     .then(function (e) {
+//         console.log(e.target.response);
+//     }, function (e) {
+//         // handle errors
+//     });
 function showData() {
     if (server_result.success != 1) {
         $('#loading').empty();

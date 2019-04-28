@@ -4,10 +4,6 @@ import os
 import random
 from DBInsertion import DBInsertion
 from datetime import datetime,timedelta
-from werkzeug.utils import secure_filename
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER']='/tmp/cmd2webfiles'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 current_directory= os.path.dirname(__file__)
 database_file_path = os.path.join(current_directory, "../DBScript/CMD2WEB.sqlite")
 database_object = DBInsertion(database_file_path)

@@ -8,27 +8,38 @@ import argparse
 import io
 import re
 import random
+import logging
 import cmd2web
 import os
 import settings
 from OpenSSL import SSL
 from flask_cors import CORS, cross_origin
+from flask import  render_template
 from pathlib import Path
-
-app = Flask(__name__)
+from werkzeug.utils import secure_filename
+from logtest import setup_logging
+setup_logging()
+current_directory= os.path.dirname(__file__)
+template_dir=os.path.join(current_directory, '../web_client')
+static_dir=os.path.join(current_directory, '../web_client')
+app = Flask(__name__,template_folder=template_dir,static_url_path="/web_client", static_folder=static_dir)
+app.debug = True
 CORS(app)
 config = None
 server = None
 timeout=10
 apache_server = False
-
-
-current_directory= os.path.dirname(__file__)
+logger = logging.getLogger(__name__)
+logger.info("Starting the application.")
+app.config['UPLOAD_FOLDER']='/tmp'
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 apache_config_file_path=os.path.join(current_directory, '../ex_configs/apache_conf.yaml')
 apache_file = Path(apache_config_file_path)
 if apache_file.is_file():
+    logger.info("Using Apache server.")
     apache_server = True
 else:
+    logger.info("Using python server.")
     apache_server = False
 '''Get the boolean value for apache server'''
 
@@ -47,8 +58,66 @@ def after_request(response):
 
 @app.route('/info')
 def info():
+    logger.info("Getting information about the aplication.")
     sys.stderr.write("hello there from info method my CGI script.======={0}=======\n".format(server))
     return json.dumps(server.get_info())
+
+@app.route("/f",methods=['POST','PUT'])
+def file_upload():
+    if request.method == 'POST':
+        grep_pattern = request.args.get('pattern')
+        f = request.files['file']
+        filename = secure_filename(f.filename)
+        filepath=os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        f.save(filepath)
+        argument = request.args.copy()
+        argument['file']=filepath
+        result = operation_check(argument)
+        os.remove(filepath)
+        return result
+
+@app.route("/webapp")
+def index():
+    return render_template("simple.html");
+
+def operation_check(argument):
+    database_file_path = os.path.join(current_directory, "../DBScript/CMD2WEB.sqlite")
+    database_object = DatabaseConnection(database_file_path)
+
+    service = request.args.get('service')
+
+    if not service:
+        logger.error("No service specified.")
+        return cmd2web.Server.error('No service specified')
+
+    if not server.has_service(service):
+        logger.error("Unknown service.")
+        return cmd2web.Server.error('Unknown service')
+
+    if not server.services[service].args_match(argument):
+        logger.error('Argument mismatch')
+        return cmd2web.Server.error('Argument mismatch')
+
+    service_instance = server.services[service].copy()
+    sys.stderr.write("\n\n\nService Instance: {0}\n\n\n".format(service_instance))
+    if (hasattr(service_instance, 'group')):
+        restricted = database_object.get_restricted_access(service_instance.group)
+        if (restricted == True):
+            # Check if token is present in parameter
+            token = request.args.get('token');
+            if not token:
+                logger.error("Access restricted without token.")
+                return cmd2web.Server.error('Access restricted without token.')
+            token_access = database_object.check_token_access(service_instance.group, token)
+            if (token_access == True):
+                return process_service(service_instance)
+            else:
+                logger.error("Wrong or expired token. Access Denied.")
+                return cmd2web.Server.error('Wrong or expired token. Access Denied')
+        else:
+            return process_service(service_instance,argument)
+    else:
+        return process_service(service_instance,argument)
 
 @app.route('/')
 def service():
@@ -59,12 +128,15 @@ def service():
     service = request.args.get('service')
 
     if not service:
+        logger.error("No service specified.")
         return cmd2web.Server.error('No service specified')
 
     if not server.has_service(service):
+        logger.error("Unknown service.")
         return cmd2web.Server.error('Unknown service')
 
     if not server.services[service].args_match(request.args):
+        logger.error('Argument mismatch')
         return cmd2web.Server.error('Argument mismatch')
 
     service_instance = server.services[service].copy()
@@ -75,22 +147,24 @@ def service():
             #Check if token is present in parameter
             token = request.args.get('token');
             if not token:
+                logger.error("Access restricted without token.")
                 return cmd2web.Server.error('Access restricted without token.')
             token_access = database_object.check_token_access(service_instance.group,token)
             if(token_access == True):
                 return process_service(service_instance)
             else:
+                logger.error("Wrong or expired token. Access Denied.")
                 return cmd2web.Server.error('Wrong or expired token. Access Denied')
         else:
-            return process_service(service_instance)
+            return process_service(service_instance,request.args)
     else:
-        return process_service(service_instance)
+        return process_service(service_instance,request.args)
 
 ##################Extra for Apache server - start#############
 
-def process_service(service_instance):
+def process_service(service_instance,argument):
     try:
-        cmd = service_instance.make_cmd(request.args)
+        cmd = service_instance.make_cmd(argument)
     except Exception as e:
         return cmd2web.Server.error(str(e))
 
@@ -108,6 +182,7 @@ def process_service(service_instance):
         # sys.stderr.write("\n\n\nResult: {0}\n\n\n".format(res))
     except subprocess.TimeoutExpired as e:
         print('Time Out')
+        logger.error("Time limit for current request exceed.")
         return cmd2web.Server.error('Time limit for current request exceed.')
     except Exception as e:
         return cmd2web.Server.error(str(e))
