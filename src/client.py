@@ -13,7 +13,7 @@ else:
     apache_server = False
 
 if(apache_server):
-    s = cmd2web.Client.connect('http://localhost/cmd2web')
+    s = cmd2web.Client.connect('http://localhost')
 else:
     s = cmd2web.Client.connect('http://127.0.0.1:8080')
 

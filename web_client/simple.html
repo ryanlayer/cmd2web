@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link href="site.css" rel='stylesheet' type='text/css'> 
+    <link href="web_client/site.css" rel='stylesheet' type='text/css'>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"> </script>
+    <script type="text/javascript" src="web_client/cmd2web.js"></script>
+    <!--<script type="text/javascript" src="{{ url_for('static', filename='cmd2web.js') }}"></script>-->
 </head>
 <body>
 <h2>Command to Web Interface</h2>
@@ -15,14 +17,28 @@
 
 <div id="services">
 </div>
-
 <div id="input">
 </div>
 <div id="loading"> </div>
 <div id="output">
 </div>
 
-<script src="cmd2web.js"></script>
+<!--<h2>Command to Web Interface (With File Upload)</h2>-->
+
+<!--<h1>Upload Files</h1>-->
+
+    <!--&lt;!&ndash;<form action="/f?service=simpleFileGrep&pattern=zip" method="post" enctype="multipart/form-data">&ndash;&gt;-->
+        <!--&lt;!&ndash;<input type="file" name="file">&ndash;&gt;-->
+        <!--&lt;!&ndash;<input type="submit" value="Upload">&ndash;&gt;-->
+    <!--&lt;!&ndash;</form>&ndash;&gt;-->
+
+       <!--<form id="form1" method="post" action="/f?service=simpleFileGrep&pattern=zip" enctype="multipart/form-data">-->
+    <!--<input name="file" type="file" />-->
+    <!--<button type='button' id='submit_btn'>Submit</button>-->
+        <!--</form>-->
+
+<!--<p id="tee"></p>-->
+
 
 </body>
 </html>

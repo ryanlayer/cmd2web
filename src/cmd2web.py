@@ -5,8 +5,11 @@ import re
 import random
 from flask import Flask,send_file
 import requests
+import logging
 import settings
-
+from logtest import setup_logging
+setup_logging()
+logger = logging.getLogger(__name__)
 #{{{def test_required(name, required, config):
 def test_required(name, required, config):
     for r in required:
@@ -201,6 +204,7 @@ class Output:
 
 #{{{class Service:
 class Service:
+    logger.info("Inside service class of cm2web from my CGI script.")
     sys.stderr.write("Inside service class of cm2web from my CGI script.\n\n\n")
     #{{{def replace_variable(field, variable_table):
     @staticmethod
@@ -366,7 +370,7 @@ class Server:
         sys.stderr.write("hello there from inside load method ..{0}..\n\n\n ".format(config_file))
         # try:
         #     f = open(config_file, 'r')
-        # except Exception as e:
+        # except ExceInside service class of cm2web from my CGI script.ption as e:
         #      sys.exit('ERROR loading config file. "' + str(e) + '"')
            
         try:

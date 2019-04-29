@@ -28,6 +28,25 @@
             type : text_stream
             sep : \t
     -
+        name : simpleFileGrep
+        arguments :
+            -
+                name : file
+                fixed : 'false'
+                type : string
+            -
+                name : pattern
+                fixed : 'false'
+                type : string
+        command :
+            - /bin/grep
+            - $pattern
+            - $file
+        output :
+            type : text_stream
+            sep : \t
+
+    -
         name : simpleRepeat
         arguments : 
             -
