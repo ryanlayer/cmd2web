@@ -4,13 +4,10 @@ var server_result = null;
 var selectedService = null;
 
 $(document).on("click","#submit_btn",function(e) {
-     // Create an FormData object
      e.preventDefault();
      var formData = $("#form1").submit(function (e) {
          return;
      })
-     //formData[0] contain form data only
-     // You can directly make object via using form id but it require all ajax operation inside $("form").submit(<!-- Ajax Here   -->)
  var formData = new FormData(formData[0]);
  $.ajax({
      url: $('#form1').attr('action'),
@@ -19,8 +16,6 @@ $(document).on("click","#submit_btn",function(e) {
      success: function (response) {
          server_result = JSON.parse(response);
          showData();
-         // mydiv = document.getElementById("tee");
-         // mydiv.innerHTML += response;
          console.log(response);
      },
      contentType: false,
@@ -31,14 +26,11 @@ $(document).on("click","#submit_btn",function(e) {
 
 function setForm() {
 
-     //Prevent Instant Click
 
-     // Create an FormData object
      var formData = $("#form1").submit(function (e) {
          return;
      })
-     //formData[0] contain form data only
-     // You can directly make object via using form id but it require all ajax operation inside $("form").submit(<!-- Ajax Here   -->)
+
  var formData = new FormData(formData[0]);
  $.ajax({
      url: $('#form1').attr('action'),
@@ -47,8 +39,6 @@ function setForm() {
      success: function (response) {
          server_result = JSON.parse(response);
          showData();
-         // mydiv = document.getElementById("tee");
-         // mydiv.innerHTML += response;
          console.log(response);
      },
      contentType: false,
