@@ -48,8 +48,8 @@ function setForm() {
  };
 
 $.urlParam = function(name){
-    var results = new RegExp('[\?&]' + 
-                             name + 
+    var results = new RegExp('[\?&]' +
+                             name +
                              '=([^&#]*)').exec(window.location.href);
     if (results==null){
         return null;
@@ -65,7 +65,7 @@ $(document).ready(function() {
         server_url = decodeURIComponent(server_param);
         $('#server_text').val(server_url);
         connect_to_server();
-    } 
+    }
 
 })
 
@@ -126,7 +126,7 @@ function setInputForm(){
             selectedService = decodeURIComponent(service_param);
             $("#set-service").val(selectedService).change();
             load_service();
-        } 
+        }
     }
 
 }
@@ -205,6 +205,18 @@ function load_service() {
             all_vals = false;
         }
     }
+     token_str = '<input type="text" id="token"' +
+                ' placeholder="token">';
+     if(file_upload){
+         if(server_info[selectedService].group){
+        $('#form1').append(token_str);
+         }
+     }
+     else{
+         if(server_info[selectedService].group){
+        $('#input').append(token_str);
+         }
+     }
 
     $('#input').append('<button id="get_data" onclick="getData()">Get</button>');
 
@@ -241,7 +253,13 @@ function getData() {
             var inputValue = document.getElementById(inputName).value;
             url_params += '&' + inputName + '=' + inputValue
         }
-    }  
+    }
+    if(server_info[selectedService].group){
+        //It has group so token needs to be passed
+        //check if token present
+        var tokenVal = document.getElementById("token").value;
+        url_params += '&' + "token" + '=' + tokenVal
+    }
     if(file_upload){
         var form_elem = document.getElementById('form1');
         form_elem.action = form_elem.action+url_params;
@@ -261,7 +279,7 @@ function getData() {
         }
     );
     }
-   
+
 }
 
 

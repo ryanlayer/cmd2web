@@ -258,6 +258,10 @@ class Service:
         service_info = {}
         service_info['name'] = self.name
         service_info['output'] = self.output.get_info()
+        if (hasattr(self, 'group')):
+            service_info['group'] = True
+        else:
+            service_info['group'] = False
         service_info['inputs'] = []
         for argument in self.arguments:
             argument_info = argument.get_info()
