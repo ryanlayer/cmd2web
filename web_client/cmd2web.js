@@ -306,6 +306,7 @@ function showData() {
     if (server_result.success != 1) {
         $('#loading').empty();
         $('#output').append('Command did not complete successfully');
+        $('#exception').append(server_result.exception);
     } else {
         console.log('0');
         $('#loading').empty();
