@@ -1,12 +1,3 @@
-# import requests
-# filename='/home/rohit/test3.txt'
-# f = open (filename)
-# r =  requests.post(url='http://127.0.0.1:8080/f?service=simpleFileGrep&pattern=zip', files =  {'file':f})
-# print(r.status_code)
-# print(r.headers)
-# print(r.json())
-
-
 import click
 import requests
 

@@ -4,13 +4,10 @@ var server_result = null;
 var selectedService = null;
 
 $(document).on("click","#submit_btn",function(e) {
-     // Create an FormData object
      e.preventDefault();
      var formData = $("#form1").submit(function (e) {
          return;
      })
-     //formData[0] contain form data only
-     // You can directly make object via using form id but it require all ajax operation inside $("form").submit(<!-- Ajax Here   -->)
  var formData = new FormData(formData[0]);
  $.ajax({
      url: $('#form1').attr('action'),
@@ -19,8 +16,6 @@ $(document).on("click","#submit_btn",function(e) {
      success: function (response) {
          server_result = JSON.parse(response);
          showData();
-         // mydiv = document.getElementById("tee");
-         // mydiv.innerHTML += response;
          console.log(response);
      },
      contentType: false,
@@ -31,14 +26,11 @@ $(document).on("click","#submit_btn",function(e) {
 
 function setForm() {
 
-     //Prevent Instant Click
 
-     // Create an FormData object
      var formData = $("#form1").submit(function (e) {
          return;
      })
-     //formData[0] contain form data only
-     // You can directly make object via using form id but it require all ajax operation inside $("form").submit(<!-- Ajax Here   -->)
+
  var formData = new FormData(formData[0]);
  $.ajax({
      url: $('#form1').attr('action'),
@@ -47,8 +39,6 @@ function setForm() {
      success: function (response) {
          server_result = JSON.parse(response);
          showData();
-         // mydiv = document.getElementById("tee");
-         // mydiv.innerHTML += response;
          console.log(response);
      },
      contentType: false,
@@ -58,8 +48,8 @@ function setForm() {
  };
 
 $.urlParam = function(name){
-    var results = new RegExp('[\?&]' + 
-                             name + 
+    var results = new RegExp('[\?&]' +
+                             name +
                              '=([^&#]*)').exec(window.location.href);
     if (results==null){
         return null;
@@ -75,7 +65,7 @@ $(document).ready(function() {
         server_url = decodeURIComponent(server_param);
         $('#server_text').val(server_url);
         connect_to_server();
-    } 
+    }
 
 })
 
@@ -136,7 +126,7 @@ function setInputForm(){
             selectedService = decodeURIComponent(service_param);
             $("#set-service").val(selectedService).change();
             load_service();
-        } 
+        }
     }
 
 }
@@ -215,6 +205,18 @@ function load_service() {
             all_vals = false;
         }
     }
+     token_str = '<input type="text" id="token"' +
+                ' placeholder="token">';
+     if(file_upload){
+         if(server_info[selectedService].group){
+        $('#form1').append(token_str);
+         }
+     }
+     else{
+         if(server_info[selectedService].group){
+        $('#input').append(token_str);
+         }
+     }
 
     $('#input').append('<button id="get_data" onclick="getData()">Get</button>');
 
@@ -251,7 +253,13 @@ function getData() {
             var inputValue = document.getElementById(inputName).value;
             url_params += '&' + inputName + '=' + inputValue
         }
-    }  
+    }
+    if(server_info[selectedService].group){
+        //It has group so token needs to be passed
+        //check if token present
+        var tokenVal = document.getElementById("token").value;
+        url_params += '&' + "token" + '=' + tokenVal
+    }
     if(file_upload){
         var form_elem = document.getElementById('form1');
         form_elem.action = form_elem.action+url_params;
@@ -271,7 +279,7 @@ function getData() {
         }
     );
     }
-   
+
 }
 
 
@@ -298,6 +306,7 @@ function showData() {
     if (server_result.success != 1) {
         $('#loading').empty();
         $('#output').append('Command did not complete successfully');
+        $('#exception').append(server_result.exception);
     } else {
         console.log('0');
         $('#loading').empty();

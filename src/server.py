@@ -110,7 +110,7 @@ def operation_check(argument):
                 return cmd2web.Server.error('Access restricted without token.')
             token_access = database_object.check_token_access(service_instance.group, token)
             if (token_access == True):
-                return process_service(service_instance)
+                return process_service(service_instance,argument)
             else:
                 logger.error("Wrong or expired token. Access Denied.")
                 return cmd2web.Server.error('Wrong or expired token. Access Denied')
@@ -151,7 +151,7 @@ def service():
                 return cmd2web.Server.error('Access restricted without token.')
             token_access = database_object.check_token_access(service_instance.group,token)
             if(token_access == True):
-                return process_service(service_instance)
+                return process_service(service_instance,request.args)
             else:
                 logger.error("Wrong or expired token. Access Denied.")
                 return cmd2web.Server.error('Wrong or expired token. Access Denied')
