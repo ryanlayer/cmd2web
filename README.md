@@ -762,7 +762,7 @@ Options:
 
 
 ```
-## File Upload Service
+# File Upload Service
 We need to add the service to the config file. There is a separate endpoint created for the fileupload with "/f" endpoint.
 File fixed attribute is set to false for this service.
  For eg:
@@ -790,7 +790,7 @@ name : simpleFileGrep
 The file will be uploaded to the tmp folder and will be deleted once processing is complete.
 I have implemented it in 3 ways:
 
-# 1. Curl Command
+## 1. Curl Command
 
  For eg: If a user wants to call simpleFileGrep service and wants to upload test1.txt file. 
 
@@ -801,7 +801,7 @@ Python
 curl -X POST -F file=@"test1.txt" "http://127.0.0.1:8080/f?service=simpleFileGrep&pattern=zip"
 
 -----------------------------------------------------------------------------
-# 2. File Upload Command Line Application
+## 2. File Upload Command Line Application
 
 The admin has following methods available (DBCommandLineTool.py):
 
@@ -851,7 +851,7 @@ Options:
 ```
 
 -----------------------------------------------------------------------------
-# 3. Web Version 
+## 3. Web Version 
 
 Apache
 https://localhost/webapp
