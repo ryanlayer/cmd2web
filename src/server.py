@@ -12,13 +12,13 @@ import logging
 import cmd2web
 import os
 import settings
-from OpenSSL import SSL
+#from OpenSSL import SSL
 from flask_cors import CORS, cross_origin
 from flask import  render_template
 from pathlib import Path
 from werkzeug.utils import secure_filename
-from logtest import setup_logging
-setup_logging()
+#from logtest import setup_logging
+#setup_logging()
 current_directory= os.path.dirname(__file__)
 template_dir=os.path.join(current_directory, '../web_client')
 static_dir=os.path.join(current_directory, '../web_client')
