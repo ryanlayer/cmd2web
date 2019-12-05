@@ -7,8 +7,8 @@ from flask import Flask,send_file
 import requests
 import logging
 import settings
-from logtest import setup_logging
-setup_logging()
+#from logtest import setup_logging
+#setup_logging()
 logger = logging.getLogger(__name__)
 #{{{def test_required(name, required, config):
 def test_required(name, required, config):
