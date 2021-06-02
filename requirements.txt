@@ -10,5 +10,5 @@ MarkupSafe==1.1.1
 PyYAML==5.2
 requests==2.22.0
 six==1.13.0
-urllib3==1.25.7
+urllib3==1.26.5
 Werkzeug==0.16.0
