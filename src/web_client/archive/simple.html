@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"> </script>
+<style>
+ul 
+{  
+    width: 500px;
+  word-break: break-all;}
+
+
+</style>
+</head>
+
+<body>
+<form action="{{ url_for("index")}}" method="post">
+<label for="sequence">Sequence:</label>
+<input type="text" id="Sequence" name="sequence" placeholder="sequence">
+<button type="submit">Submit</button>
+
+
+
+<div id="slideContainer"></div>
+<script>
+
+var slides = '{{data}}'
+var test = slides.split(",")
+console.log(typeof(test))
+console.log(test)
+
+var str = '<ul>'
+
+test.forEach(function(slide) {
+  str += '<li>'+ slide + '</li>';
+  document.getElementById("slideContainer").innerHTML = str;
+}); 
+
+str += '</ul>';
+document.getElementById("slideContainer").innerHTML = str;
+</script>
+<!--
+
+<p>
+{% for item in data %}
+    <td>{{item}}</td>
+{% endfor %}
+</p>
+
+<div id="server">
+<input type="text" id="server_text" placeholder="http://server:port">
+<button id="set_server" onclick="setServer()">Set Server</button>
+</div>
+
+
+<div id="services">
+</div>
+
+<div id="input">
+</div>
+<div id="loading"> </div>
+<div id="output">
+</div>
+
+<script src="cmd2web.js"></script>
+-->
+</body>
+</html>

@@ -1,15 +1,11 @@
-
 import json
 import sys
 import re
 import random
 from flask import Flask,send_file
 import requests
-import logging
-import settings
-#from logtest import setup_logging
-#setup_logging()
-logger = logging.getLogger(__name__)
+import pandas as pd
+
 #{{{def test_required(name, required, config):
 def test_required(name, required, config):
     for r in required:
@@ -204,8 +200,7 @@ class Output:
 
 #{{{class Service:
 class Service:
-    logger.info("Inside service class of cm2web from my CGI script.")
-    sys.stderr.write("Inside service class of cm2web from my CGI script.\n\n\n")
+
     #{{{def replace_variable(field, variable_table):
     @staticmethod
     def replace_variable(field, variable_table):
@@ -225,7 +220,6 @@ class Service:
     def load(config):
         required = ['name', 'command', 'arguments', 'output']
         test_required('service', required, config)
-        group = config.get('group',"None")
 
         name = config['name']
         command = config['command']
@@ -236,17 +230,13 @@ class Service:
             arguments.append(argument)
 
         output = Output.load(config['output'])
-        if(group != "None"):
-            return Service(name, command, arguments, output,group)
-        else:
-            return Service(name, command, arguments, output)
+
+        return Service(name, command, arguments, output)
     #}}}
 
     #{{{ def __init__(self, name, command, arguments, output):
-    def __init__(self, name, command, arguments, output, group='None'):
+    def __init__(self, name, command, arguments, output):
         self.name = name
-        if(group!='None'):
-            self.group =group
         self.command = command
         self.arguments = arguments
         self.output = output
@@ -258,10 +248,6 @@ class Service:
         service_info = {}
         service_info['name'] = self.name
         service_info['output'] = self.output.get_info()
-        if (hasattr(self, 'group')):
-            service_info['group'] = True
-        else:
-            service_info['group'] = False
         service_info['inputs'] = []
         for argument in self.arguments:
             argument_info = argument.get_info()
@@ -273,7 +259,7 @@ class Service:
 
     #{{{def make_cmd(self, args):
     def make_cmd(self, args):
-        # //pair flags with  parameter in optional case. Replace_variable..Field might be array
+
         for arg in self.arguments:
             if arg.fixed:
                 self.variable_table['$' + arg.name] = arg.value
@@ -281,12 +267,13 @@ class Service:
                 input_val = args.get(arg.name)
                 if arg.type_test(input_val):
                     self.variable_table['$' + arg.name] = input_val
+                
                 else:
                     raise Exception('Type mismatch for argument ' + \
                                     arg.name + \
                                     '. Expected ' + \
                                     arg.type) 
-        #DO not call replace variable on something that is optional and not provided.
+
         for i in range(len(self.command)):
             self.command[i] = Service.replace_variable(self.command[i],
                                                        self.variable_table)
@@ -303,7 +290,7 @@ class Service:
 
         extra = False
         for arg in args:
-            if arg == 'service' or arg == 'token':
+            if arg == 'service':
                 continue
             if arg not in variable_args:
                 extra = True
@@ -325,15 +312,55 @@ class Service:
 
     #{{{ def process_result(self, out_file_name):
     def process_result(self, out_file_name):
-        sys.stderr.write("\n\n\nInside process result {0}\n\n\n".format(out_file_name))
         if self.output.type == 'text_stream':
             result = {"success":  1}
-            out = []
+            out = {}
+            temp = []
+            ### HARDCODED FOR FORTRAN PARSE ###
             for line in open(out_file_name, 'r'):
-                out.append(line.rstrip().split(self.output.sep))
-            result['result'] = out
-            return json.dumps(result)
+                if line.strip() != '':
+                    temp.append(line.strip())
+            print(temp)
+            out['result'] = temp[0]
+            line = temp[1].split('    ')
+            out['sequence_length'] = line[1]
+            res = [temp.index(i) for i in temp if 'Whole' in i]
+            names = ['nu_model','b_turn','r_model']
+            for index,i in enumerate(res):
+                line = temp[i].split()
+                out[names[index]] = line[3]
+                
+            names = ['blue','red','black']
+            res = [temp.index(i) for i in temp if 'Number' in i]
+            for index,i in enumerate(res):
+                line = temp[i].split()
+                out[names[index]] = line[6]
+
+            res = [temp.index(i) for i in temp if 'domain' in i]
+            last = res[6:][0]
+            rows = []
+            for i in range(last,len(temp)):
+                new_row = []
+                x = temp[i].split()
+                indexes = [1,2, 6,9,11]
+                for index in indexes:
+                    if index == 2:
+                        new = x[2].strip(',') + ' ' + x[3].strip(',')
+                        new_row.append(new)
+                    else:    
+                        new_row.append(x[index].strip(','))
+                rows.append(new_row)
+            out['table'] = rows
+            ####
+            return json.dumps(out)
+                #print(2+'c')
+            #for line in open(out_file_name, 'r'):
+            #    print(line)
+            #    out.append(line.rstrip().split(self.output.sep))
+            #result['result'] = out
+            #return json.dumps(result)
         elif self.output.type == 'file':
+
             self.output.value = Service.replace_variable(self.output.value,
                                                          self.variable_table)
             return send_file(self.output.value,
@@ -350,11 +377,9 @@ class Service:
             arguments.append( argument.copy() )
 
         output = self.output.copy()
-        group="None"
-        if(hasattr(self, 'group')):
-            group = self.group
+    
 
-        return Service(name, command, arguments, output,group)
+        return Service(name, command, arguments, output)
     #}}}
 
 #}}}
@@ -371,20 +396,17 @@ class Server:
     #{{{def load(config_file):
     @staticmethod
     def load(config_file):
-        sys.stderr.write("hello there from inside load method ..{0}..\n\n\n ".format(config_file))
-        # try:
-        #     f = open(config_file, 'r')
-        # except ExceInside service class of cm2web from my CGI script.ption as e:
-        #      sys.exit('ERROR loading config file. "' + str(e) + '"')
+        try:
+            f = open(config_file, 'r')
+        except Exception as e:
+             sys.exit('ERROR loading config file. "' + str(e) + '"')
            
         try:
-            print("Trying to open file",config_file);
-            server_config = settings.Settings(type= "Services",filepath = config_file)
-            # server_config = json.load(f)
+            server_config = json.load(f)
         except Exception as e:
-             sys.exit('ERROR loading server config "' + str(e) + '"')
+             sys.exit('ERROR loading config file. "' + str(e) + '"')
 
-        # f.close()
+        f.close()
 
         services = {}
         for service_config in server_config:

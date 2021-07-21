@@ -89,7 +89,7 @@
                 "name" : "file",
                 "fixed" : "true",
                 "type" : "string",
-                "value" : "/Users/rl/ref/repeats/ucsc/rmsk.bed.gz"
+                "value" : "/home/user/cmd2web/rmsk.bed.gz"
             },
             {
                 "name" : "chromosome",
@@ -110,7 +110,7 @@
 
         "command":
         [
-            "/Users/rl/bin/tabix",
+            "/usr/bin/tabix",
             "$file",
             "$chromosome:$start-$end"
         ],
@@ -121,5 +121,33 @@
             "type" : "text_stream",
             "sep" : "\t"
         }
+    },
+    {   
+        "name" : "fortran",
+        "arguments" : 
+        [
+
+            {
+                "name" : "sequence",
+                "fixed" : "false",
+                "type" : "string"
+            }
+
+        ],
+
+        "command":
+        [
+            "gfortran -o src/Parse.exe src/Parse.f",
+            "&& src/./Parse.exe",
+            "$sequence"
+        ],
+
+
+        "output" : 
+        {
+            "type" : "text_stream",
+            "sep" : "\t"
+        }
     }
 ]
+

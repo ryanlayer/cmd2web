@@ -1,0 +1,36 @@
+body 
+{
+    font-family: Arial, sans-serif;
+    font-size: 11pt;
+}
+
+input[type="text"]
+{
+    font-size: 11pt;
+}
+
+select 
+{
+    font-size: 11pt;
+}
+
+button
+{
+    background-color: #555555;
+    color: white;
+    font-size: 11pt;
+}
+
+#slideContainer
+{
+    word-wrap: break-all;
+    overflow-wrap: break-word;
+    background-color: black;
+}
+#ul
+{
+    list-style-position: inside;
+}
+
+
+

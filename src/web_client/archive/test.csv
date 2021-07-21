@@ -1,0 +1,23 @@
+  
+DDDDDDDDDDDDDDDFFDFFFFFFFFFFFFFFFFFFFFDDFFDFDDDDDFDDDDDDFFFFFFFFFFFFDDDDDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFFFFFDDFDDDDDDDDDDDDDDDDDDDDDDDDDDDFDFFFFFFFFFFFFFFDFDDDDDDDDDDDDDDD
+  
+Sequence length    279
+Whole sequence nu_model  0.532
+Whole sequence β-turn prop  0.951
+Whole sequence r_model   1.789
+  
+Number of PS (blue) domains =      0
+domain  first_residue  last_residue
+  
+Number of ID (red) domains =       1
+domain  first_residue  last_residue
+   1          218          248
+  
+Number of F (black) domains =     2
+domain  first_residue  last_residue
+   1           15           38
+   2           72          217
+  
+domain    1, F (black),  first residue    15,  last residue    38,  length     24
+domain    2, F (black),  first residue    72,  last residue   217,  length    146
+domain    3, ID  (red),  first residue   218,  last residue   248,  length     31
