@@ -3,6 +3,24 @@ line programs. From this interface, data and methods can be easily accessed
 through either a dynamic website or a programmatic interface. This package
 includes a server and client javascript and python interfaces.
 
+# Setup (In Progress)
+Clone Repo
+cd cmd2web
+Find python path (i.e /usr/local/bin/python) and start virtualenv
+```
+virtualenv -p /usr/local/bin/python3.6 cmd2web_env
+source cmd2web_env/bin/activate
+pip install flask requests numpy Cython cyvcf2
+```
+Start Server (need to change a few paths in tabix_config.json)
+```
+python src/server.py --config ex_configs/tabix_config.json 
+```
+Navigate to http://127.0.0.1:8080/web
+
+----Disregard below for now----
+
+
 # Server
 
 To stand up a server, you define a mapping between command line parameters and
